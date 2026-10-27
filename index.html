@@ -3,233 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VecinApp - Sistema de Gestión Integral de Incidencias y Servicios Comunitarios</title>
+    <title>VecinApp - Red Social Comunitaria</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Supabase JS SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
 
-    <!-- CONFIGURACIÓN DE SUPABASE (Tus llaves configuradas) -->
-    <script>
-        const SUPABASE_URL = 'https://pwqbirdbnekjtvazovlw.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_tu_codigo_largo_aqui'; // <-- Pega aquí tu Publishable key de Supabase
-        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    </script>
-
-    <!-- Header / Top Bar -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <!-- Brand Logo & Official Title Container -->
+    <!-- Header / Top Bar Estilo Red Social -->
+    <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b border-slate-800 sticky top-0 z-40 shadow-lg text-white">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
             <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-indigo-200 flex-shrink-0">
-                    <i class="fa-solid fa-city text-xl"></i>
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 flex-shrink-0">
+                    <i class="fa-solid fa-earth-americas text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg sm:text-xl font-bold bg-gradient-to-r from-indigo-600 to-emerald-600 bg-clip-text text-transparent">VecinApp</h1>
-                    <p class="text-[11px] sm:text-xs text-slate-500 font-medium line-clamp-1">Sistema de Gestión de Reportes e Incidencias — Sector Vista al Mar, Catia La Mar, La Guaira</p>
+                    <h1 class="text-lg sm:text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-emerald-300 bg-clip-text text-transparent">VecinApp</h1>
+                    <p class="text-[11px] sm:text-xs text-slate-400 font-medium">Comunidad Activa • Sector Vista al Mar, La Guaira</p>
                 </div>
             </div>
 
-            <!-- Actions Header / Auth Controls -->
-            <div class="flex items-center space-x-3" id="headerAuthContainer">
-                <!-- Dinámico vía JS -->
-            </div>
+            <!-- Auth / Actions -->
+            <div class="flex items-center space-x-3" id="headerAuthContainer"></div>
         </div>
 
         <!-- Navigation Tabs Bar -->
-        <div class="bg-slate-50 border-t border-slate-200 px-4 sm:px-6 lg:px-8">
-            <div class="max-w-7xl mx-auto flex space-x-2 sm:space-x-6 overflow-x-auto py-2 scrollbar-none">
-                <button onclick="switchTab('incidencias')" id="tabBtn-incidencias" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap bg-indigo-600 text-white shadow-sm">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>Incidencias</span>
+        <div class="bg-slate-900/80 backdrop-blur-md border-t border-slate-800 px-4 sm:px-6">
+            <div class="max-w-5xl mx-auto flex space-x-2 sm:space-x-6 overflow-x-auto py-2.5 scrollbar-none">
+                <button onclick="switchTab('incidencias')" id="tabBtn-incidencias" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap bg-indigo-600 text-white shadow-md shadow-indigo-600/30">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Muro Social</span>
                 </button>
-                <button onclick="switchTab('comunicados')" id="tabBtn-comunicados" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap text-slate-600 hover:bg-slate-200/60">
+                <button onclick="switchTab('comunicados')" id="tabBtn-comunicados" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap text-slate-300 hover:bg-slate-800">
                     <i class="fa-solid fa-bullhorn"></i>
-                    <span>Comunicados Oficiales</span>
+                    <span>Comunicados</span>
                 </button>
-                <button onclick="switchTab('directorio')" id="tabBtn-directorio" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap text-slate-600 hover:bg-slate-200/60">
+                <button onclick="switchTab('directorio')" id="tabBtn-directorio" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap text-slate-300 hover:bg-slate-800">
                     <i class="fa-solid fa-store"></i>
-                    <span>Directorio Comunitario</span>
+                    <span>Directorio Local</span>
                 </button>
-                <button onclick="switchTab('reservas')" id="tabBtn-reservas" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap text-slate-600 hover:bg-slate-200/60">
+                <button onclick="switchTab('reservas')" id="tabBtn-reservas" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap text-slate-300 hover:bg-slate-800">
                     <i class="fa-solid fa-calendar-days"></i>
-                    <span>Reserva de Espacios</span>
+                    <span>Espacios</span>
                 </button>
-                <button onclick="switchTab('estadisticas')" id="tabBtn-estadisticas" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap text-slate-600 hover:bg-slate-200/60">
+                <button onclick="switchTab('estadisticas')" id="tabBtn-estadisticas" class="tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap text-slate-300 hover:bg-slate-800">
                     <i class="fa-solid fa-chart-pie"></i>
-                    <span>Panel Estadístico</span>
+                    <span>Métricas</span>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Main Content Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 py-8 flex-grow w-full space-y-6">
 
-        <!-- Welcome Banner -->
-        <div class="mb-8 bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-            <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="relative z-10 max-w-2xl">
-                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-3">Comunidad Organizada • Estado La Guaira</span>
-                <h2 class="text-2xl sm:text-3xl font-bold mb-2">Construyendo bienestar en Vista al Mar</h2>
-                <p class="text-slate-300 text-sm sm:text-base">Plataforma integral para reportes vecinales, directorio de servicios locales, reserva de espacios recreativos y comunicados oficiales.</p>
+        <!-- Welcome Banner con Respiro -->
+        <div class="bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative z-10">
+                <span class="bg-white/20 backdrop-blur-md text-emerald-200 border border-white/20 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-3">
+                    <i class="fa-solid fa-location-dot mr-1"></i> Vista al Mar • Catia La Mar
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold mb-2">¡Hagamos comunidad juntos!</h2>
+                <p class="text-indigo-100 text-sm sm:text-base max-w-xl">Reporta incidencias con fotos en tiempo real, apoya a tus vecinos y mantente al tanto de todo lo que pasa en nuestro sector.</p>
+                <div class="mt-5 flex items-center gap-3">
+                    <button onclick="openModal('reportModal')" class="bg-white text-indigo-900 hover:bg-indigo-50 font-bold px-5 py-2.5 rounded-2xl text-sm transition shadow-lg flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-indigo-600"></i> Publicar Incidencia
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- TAB 1: INCIDENCIAS -->
+        <!-- TAB 1: INCIDENCIAS (MURO SOCIAL) -->
         <section id="view-incidencias" class="tab-view space-y-6">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase">Total Reportes</p>
-                        <h3 id="statTotal" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-folder-open"></i></div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase">Pendientes</p>
-                        <h3 id="statPending" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-clock"></i></div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase">En Proceso</p>
-                        <h3 id="statProcess" class="text-2xl font-bold text-blue-600 mt-1">0</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-spinner"></i></div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-medium text-slate-500 uppercase">Resueltos</p>
-                        <h3 id="statResolved" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl"><i class="fa-solid fa-circle-check"></i></div>
-                </div>
-            </div>
-
-            <!-- Toolbar & Filters -->
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="relative w-full md:w-80">
+            <!-- Filtros y Buscador Estilo Feed -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="relative w-full sm:w-72">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400"><i class="fa-solid fa-magnifying-glass"></i></span>
-                    <input type="text" id="searchInput" oninput="renderIncidencias()" placeholder="Buscar por título, sector o vecino..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="text" id="searchInput" oninput="renderIncidencias()" placeholder="Buscar publicaciones..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
-                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <label class="text-xs font-medium text-slate-500">Estado:</label>
-                        <select id="statusFilter" onchange="renderIncidencias()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex-grow">
-                            <option value="Todos">Todos</option>
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="En Proceso">En Proceso</option>
-                            <option value="Resuelto">Resuelto</option>
-                        </select>
-                    </div>
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <label class="text-xs font-medium text-slate-500">Categoría:</label>
-                        <select id="categoryFilter" onchange="renderIncidencias()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex-grow">
-                            <option value="Todas">Todas</option>
-                            <option value="Alumbrado">Alumbrado</option>
-                            <option value="Agua">Agua</option>
-                            <option value="Vías/Baches">Vías/Baches</option>
-                            <option value="Basura">Basura</option>
-                            <option value="Seguridad">Seguridad</option>
-                            <option value="Otro">Otro</option>
-                        </select>
-                    </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select id="statusFilter" onchange="renderIncidencias()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex-grow">
+                        <option value="Todos">Todos los estados</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En Proceso">En Proceso</option>
+                        <option value="Resuelto">Resuelto</option>
+                    </select>
+                    <select id="categoryFilter" onchange="renderIncidencias()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex-grow">
+                        <option value="Todas">Categorías</option>
+                        <option value="Alumbrado">Alumbrado</option>
+                        <option value="Agua">Agua</option>
+                        <option value="Vías/Baches">Vías/Baches</option>
+                        <option value="Basura">Basura</option>
+                        <option value="Seguridad">Seguridad</option>
+                        <option value="Otro">Otro</option>
+                    </select>
                 </div>
             </div>
 
-            <div id="reportsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            <div id="reportsEmpty" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200">
-                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-folder-open"></i></div>
-                <h3 class="text-lg font-bold text-slate-700">No se encontraron reportes</h3>
-                <p class="text-sm text-slate-500 mt-1">Prueba cambiando los filtros o publica una nueva incidencia.</p>
+            <!-- Feed de Publicaciones / Reportes -->
+            <div id="reportsGrid" class="space-y-6"></div>
+            <div id="reportsEmpty" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                <div class="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-comments"></i></div>
+                <h3 class="text-lg font-bold text-slate-700">Aún no hay publicaciones</h3>
+                <p class="text-sm text-slate-500 mt-1">Sé el primero en reportar una incidencia en el sector.</p>
             </div>
         </section>
 
         <!-- TAB 2: COMUNICADOS OFICIALES -->
         <section id="view-comunicados" class="tab-view space-y-6 hidden">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                    <h3 class="text-xl font-bold text-slate-800">Comunicados y Avisos de la Comunidad</h3>
-                    <p class="text-xs text-slate-500">Información oficial emitida por líderes comunitarios sobre agua, asambleas y seguridad.</p>
+                    <h3 class="text-lg font-bold text-slate-800">Avisos Oficiales</h3>
+                    <p class="text-xs text-slate-500">Comunicados directos de la junta comunal.</p>
                 </div>
-                <button id="btnAddComunicado" onclick="openModal('comunicadoModal')" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition shadow-md shadow-indigo-100 flex items-center space-x-2">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Nuevo Comunicado</span>
+                <button id="btnAddComunicado" onclick="openModal('comunicadoModal')" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-medium text-sm transition shadow flex items-center space-x-2">
+                    <i class="fa-solid fa-plus"></i><span>Nuevo</span>
                 </button>
             </div>
-            <div id="comunicadosGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+            <div id="comunicadosGrid" class="space-y-4"></div>
         </section>
 
         <!-- TAB 3: DIRECTORIO COMUNITARIO -->
         <section id="view-directorio" class="tab-view space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center justify-between bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                    <h3 class="text-xl font-bold text-slate-800">Directorio de Negocios y Servicios Locales</h3>
-                    <p class="text-xs text-slate-500">Emprendedores, bodegas, panaderías y técnicos en el Sector Vista al Mar.</p>
+                    <h3 class="text-lg font-bold text-slate-800">Emprendimientos y Negocios</h3>
+                    <p class="text-xs text-slate-500">Apoya el comercio local en Vista al Mar.</p>
                 </div>
-                <button onclick="openModal('negocioModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition shadow-md shadow-indigo-100 flex items-center space-x-2">
-                    <i class="fa-solid fa-store"></i>
-                    <span>Registrar Negocio</span>
+                <button onclick="openModal('negocioModal')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-medium text-sm transition shadow flex items-center space-x-2">
+                    <i class="fa-solid fa-store"></i><span>Registrar Negocio</span>
                 </button>
             </div>
-            <div id="directorioGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div id="directorioGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
         </section>
 
         <!-- TAB 4: RESERVA DE ESPACIOS -->
         <section id="view-reservas" class="tab-view space-y-6 hidden">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center justify-between bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
                 <div>
-                    <h3 class="text-xl font-bold text-slate-800">Reserva de Espacios Comunitarios</h3>
-                    <p class="text-xs text-slate-500">Solicita la Cancha Múltiple o el Salón Comunal para eventos o actividades vecinales.</p>
+                    <h3 class="text-lg font-bold text-slate-800">Espacios Comunitarios</h3>
+                    <p class="text-xs text-slate-500">Aparta la cancha o el salón social.</p>
                 </div>
-                <button onclick="openModal('reservaModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition shadow-md shadow-indigo-100 flex items-center space-x-2">
-                    <i class="fa-solid fa-calendar-plus"></i>
-                    <span>Nueva Reserva</span>
+                <button onclick="openModal('reservaModal')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-medium text-sm transition shadow flex items-center space-x-2">
+                    <i class="fa-solid fa-calendar-plus"></i><span>Reservar</span>
                 </button>
             </div>
-            <div id="reservasGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div id="reservasGrid" class="space-y-4"></div>
         </section>
 
         <!-- TAB 5: ESTADISTICAS -->
         <section id="view-estadisticas" class="tab-view space-y-6 hidden">
-            <div>
-                <h3 class="text-xl font-bold text-slate-800">Panel Estadístico y Métricas</h3>
-                <p class="text-xs text-slate-500">Resumen analítico del rendimiento operativo de la comunidad en Vista al Mar.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <h4 class="text-sm font-bold text-slate-700 mb-2">Eficacia de Resolución</h4>
-                    <div class="flex items-center justify-center py-6">
-                        <div class="relative w-36 h-36 rounded-full bg-slate-100 flex items-center justify-center border-8 border-indigo-600" id="statCircle">
-                            <span id="statPercent" class="text-2xl font-bold text-slate-800">0%</span>
-                        </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800">Métricas de la Comunidad</h3>
+                    <p class="text-xs text-slate-500">Eficacia en la solución de reportes.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 text-center">
+                        <span class="text-xs font-semibold text-slate-500 uppercase">Eficacia general</span>
+                        <h4 id="statPercent" class="text-4xl font-black text-indigo-600 mt-2">0%</h4>
+                        <p class="text-xs text-slate-400 mt-1">Reportes resueltos exitosamente</p>
                     </div>
-                    <p class="text-center text-xs text-slate-500">Porcentaje de reportes solucionados con éxito en la comunidad.</p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <h4 class="text-sm font-bold text-slate-700 mb-4">Reportes por Categoría</h4>
                     <div id="categoryStatsBars" class="space-y-3"></div>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <h4 class="text-sm font-bold text-slate-700 mb-4">Resumen General del Sistema</h4>
-                    <ul class="space-y-3 text-sm text-slate-600">
-                        <li class="flex justify-between border-b pb-2"><span>Comunidad:</span> <strong class="text-slate-800">Vista al Mar</strong></li>
-                        <li class="flex justify-between border-b pb-2"><span>Parroquia:</span> <strong class="text-slate-800">Catia La Mar</strong></li>
-                        <li class="flex justify-between border-b pb-2"><span>Estado:</span> <strong class="text-slate-800">La Guaira</strong></li>
-                        <li class="flex justify-between"><span>Plataforma:</span> <strong class="text-indigo-600">VecinApp v2.5 Supabase</strong></li>
-                    </ul>
                 </div>
             </div>
         </section>
@@ -237,34 +180,34 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
-        <p>VecinApp &copy; 2026 — Sistema Integral Comunitario para el Sector Vista al Mar, Parroquia Catia La Mar, Estado La Guaira.</p>
+    <footer class="bg-white border-t border-slate-200 mt-16 py-6 text-center text-xs text-slate-500">
+        <p>VecinApp &copy; 2026 — Red Social Comunitaria • Sector Vista al Mar, Catia La Mar, La Guaira.</p>
     </footer>
 
-    <!-- MODALS -->
+    <!-- ================= MODALES ================= -->
 
-    <!-- Modal: Registrar Incidencia -->
-    <div id="reportModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+    <!-- Modal: Registrar Incidencia (Con Captura de Cámara / Foto) -->
+    <div id="reportModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-bullhorn"></i></div>
+                    <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-camera"></i></div>
                     <div>
-                        <h3 class="text-lg font-bold text-slate-800">Nueva Incidencia Vecinal</h3>
-                        <p class="text-xs text-slate-500">Reporta problemas en Vista al Mar</p>
+                        <h3 class="text-base font-bold text-slate-800">Nueva Incidencia</h3>
+                        <p class="text-xs text-slate-500">Comparte lo que ocurre en tu zona</p>
                     </div>
                 </div>
                 <button onclick="closeModal('reportModal')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form id="reportForm" onsubmit="handleReportSubmit(event)" class="space-y-4">
+            <form onsubmit="handleReportSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Título del Reporte</label>
-                    <input type="text" id="reportTitle" required placeholder="Ej. Tubería matriz rota frente al callejón" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="text" id="reportTitle" required placeholder="Ej. Tubo roto en la esquina" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Categoría</label>
-                        <select id="reportCategory" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <select id="reportCategory" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="Alumbrado">Alumbrado</option>
                             <option value="Agua">Agua</option>
                             <option value="Vías/Baches">Vías/Baches</option>
@@ -274,292 +217,249 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Sector / Zona</label>
-                        <select id="reportSector" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="Sector Vista al Mar (Parte Alta)">Parte Alta</option>
-                            <option value="Sector Vista al Mar (Parte Baja)">Parte Baja</option>
-                            <option value="Calle Principal Vista al Mar">Calle Principal</option>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Sector</label>
+                        <select id="reportSector" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="Parte Alta">Parte Alta</option>
+                            <option value="Parte Baja">Parte Baja</option>
+                            <option value="Calle Principal">Calle Principal</option>
                             <option value="Vereda 3">Vereda 3</option>
                         </select>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Descripción Detallada</label>
-                    <textarea id="reportDescription" rows="3" required placeholder="Explica la situación..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Descripción</label>
+                    <textarea id="reportDescription" rows="3" required placeholder="Explica los detalles..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
                 </div>
+
+                <!-- SECCIÓN DE CÁMARA / FOTO -->
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Foto o Evidencia (URL opcional)</label>
-                    <input type="url" id="reportImage" placeholder="https://ejemplo.com/foto.jpg" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Evidencia Fotográfica</label>
+                    <div class="flex items-center gap-3">
+                        <label class="cursor-pointer bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2.5 rounded-xl text-xs font-semibold transition flex items-center gap-2 border border-indigo-200 shadow-sm">
+                            <i class="fa-solid fa-camera text-base"></i> Tomar / Subir Foto
+                            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleImageCapture(event)">
+                        </label>
+                        <span id="imageStatusText" class="text-xs text-slate-400">Ninguna foto</span>
+                    </div>
+                    <!-- Vista previa de la foto -->
+                    <div id="imagePreviewBox" class="hidden mt-3 relative w-full h-40 bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
+                        <img id="imagePreviewElement" src="" alt="Vista previa" class="w-full h-full object-cover">
+                        <button type="button" onclick="clearImage()" class="absolute top-2 right-2 bg-rose-600 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs shadow"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
                 </div>
-                <div class="pt-4 flex items-center justify-end space-x-3">
-                    <button type="button" onclick="closeModal('reportModal')" class="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-100">Cancelar</button>
-                    <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium shadow-md shadow-indigo-100">Publicar Reporte</button>
+
+                <div class="pt-3">
+                    <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-md shadow-indigo-600/30 transition">Publicar en el Muro</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal: Registrar Negocio (Directorio) -->
-    <div id="negocioModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <!-- Modal: Registrar Negocio -->
+    <div id="negocioModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-store"></i></div>
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-800">Registrar Local o Servicio</h3>
-                        <p class="text-xs text-slate-500">Promociona tu emprendimiento local</p>
-                    </div>
-                </div>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                <h3 class="text-base font-bold text-slate-800">Registrar Local o Servicio</h3>
                 <button onclick="closeModal('negocioModal')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form onsubmit="handleNegocioSubmit(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Nombre del Negocio o Servicio</label>
-                    <input type="text" id="negNombre" required placeholder="Ej. Bodega San Benito" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Categoría</label>
-                    <select id="negCategoria" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <option value="Alimentos y Bodega">Alimentos y Bodega</option>
-                        <option value="Servicio Técnico / Hogar">Servicio Técnico / Hogar</option>
-                        <option value="Salud y Farmacia">Salud y Farmacia</option>
-                        <option value="Comida Rápida / Repostería">Comida Rápida / Repostería</option>
-                        <option value="Artesanía y Otros">Artesanía y Otros</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Teléfono / WhatsApp de Contacto</label>
-                    <input type="text" id="negContacto" required placeholder="0412-1234567" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Descripción Breve</label>
-                    <textarea id="negDesc" rows="2" required placeholder="Venta de víveres..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
-                </div>
-                <div class="pt-2">
-                    <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium shadow-md shadow-emerald-100">Guardar en Directorio</button>
-                </div>
+                <input type="text" id="negNombre" required placeholder="Nombre del negocio" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                <select id="negCategoria" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                    <option value="Alimentos y Bodega">Alimentos y Bodega</option>
+                    <option value="Servicio Técnico">Servicio Técnico</option>
+                    <option value="Salud y Farmacia">Salud y Farmacia</option>
+                    <option value="Comida Rápida">Comida Rápida</option>
+                </select>
+                <input type="text" id="negContacto" required placeholder="Teléfono / WhatsApp" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                <textarea id="negDesc" rows="2" required placeholder="Breve descripción..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"></textarea>
+                <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow transition">Guardar en Directorio</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal: Nueva Reserva de Espacio -->
-    <div id="reservaModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <!-- Modal: Reservar Espacio -->
+    <div id="reservaModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-calendar-days"></i></div>
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-800">Reservar Espacio</h3>
-                        <p class="text-xs text-slate-500">Cancha Múltiple o Salón Comunal</p>
-                    </div>
-                </div>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                <h3 class="text-base font-bold text-slate-800">Reservar Espacio</h3>
                 <button onclick="closeModal('reservaModal')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form onsubmit="handleReservaSubmit(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Espacio Comunitario</label>
-                    <select id="resEspacio" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="Cancha Múltiple Vista al Mar">Cancha Múltiple Vista al Mar</option>
-                        <option value="Salón de Reuniones Comunal">Salón de Reuniones Comunal</option>
+                <select id="resEspacio" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                    <option value="Cancha Múltiple Vista al Mar">Cancha Múltiple Vista al Mar</option>
+                    <option value="Salón de Reuniones Comunal">Salón de Reuniones Comunal</option>
+                </select>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="date" id="resFecha" required class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                    <select id="resHorario" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                        <option value="08:00 AM - 11:00 AM">08:00 AM - 11:00 AM</option>
+                        <option value="02:00 PM - 05:00 PM">02:00 PM - 05:00 PM</option>
+                        <option value="05:00 PM - 08:00 PM">05:00 PM - 08:00 PM</option>
                     </select>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Fecha</label>
-                        <input type="date" id="resFecha" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Bloque Horario</label>
-                        <select id="resHorario" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="08:00 AM - 11:00 AM">08:00 AM - 11:00 AM</option>
-                            <option value="02:00 PM - 05:00 PM">02:00 PM - 05:00 PM</option>
-                            <option value="05:00 PM - 08:00 PM">05:00 PM - 08:00 PM</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Propósito o Actividad</label>
-                    <input type="text" id="resMotivo" required placeholder="Ej. Torneo infantil de básquet" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="pt-2">
-                    <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-md shadow-blue-100">Solicitar Reserva</button>
-                </div>
+                <input type="text" id="resMotivo" required placeholder="Motivo de la reserva" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow transition">Confirmar Reserva</button>
             </form>
         </div>
     </div>
 
-    <!-- Modal: Nuevo Comunicado (Admin Only) -->
-    <div id="comunicadoModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <!-- Modal: Nuevo Comunicado (Admin) -->
+    <div id="comunicadoModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-bullhorn"></i></div>
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-800">Publicar Comunicado</h3>
-                        <p class="text-xs text-slate-500">Aviso oficial para la comunidad</p>
-                    </div>
-                </div>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                <h3 class="text-base font-bold text-slate-800">Publicar Comunicado</h3>
                 <button onclick="closeModal('comunicadoModal')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form onsubmit="handleComunicadoSubmit(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Título del Comunicado</label>
-                    <input type="text" id="comTitulo" required placeholder="Ej. Cronograma de agua" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Categoría del Aviso</label>
-                    <select id="comCat" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="Agua">Servicio de Agua</option>
-                        <option value="Asamblea">Asamblea Vecinal</option>
-                        <option value="Seguridad">Seguridad Ciudadana</option>
-                        <option value="Mantenimiento">Mantenimiento Urbano</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Contenido del Comunicado</label>
-                    <textarea id="comContenido" rows="4" required placeholder="Detalles del aviso..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-                </div>
-                <div class="pt-2">
-                    <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium shadow-md shadow-indigo-100">Publicar Aviso Oficial</button>
-                </div>
+                <input type="text" id="comTitulo" required placeholder="Título del aviso" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                <select id="comCat" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                    <option value="Agua">Servicio de Agua</option>
+                    <option value="Asamblea">Asamblea Vecinal</option>
+                    <option value="Seguridad">Seguridad Ciudadana</option>
+                    <option value="Mantenimiento">Mantenimiento Urbano</option>
+                </select>
+                <textarea id="comContenido" rows="3" required placeholder="Contenido..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"></textarea>
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow transition">Publicar</button>
             </form>
         </div>
     </div>
 
     <!-- Modal: Iniciar Sesión -->
-    <div id="loginModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div id="loginModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-right-to-bracket"></i></div>
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-800">Iniciar Sesión</h3>
-                        <p class="text-xs text-slate-500">Accede a tu cuenta en VecinApp</p>
-                    </div>
-                </div>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                <h3 class="text-base font-bold text-slate-800">Iniciar Sesión</h3>
                 <button onclick="closeModal('loginModal')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form onsubmit="handleLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Correo Electrónico</label>
-                    <input type="email" id="loginEmail" required placeholder="correo@ejemplo.com" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Contraseña</label>
-                    <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <div class="pt-2">
-                    <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium shadow-md shadow-indigo-100">Ingresar al Sistema</button>
-                </div>
-                <p class="text-center text-xs text-slate-500 pt-2">
-                    ¿No tienes cuenta? <button type="button" onclick="switchToRegister()" class="text-indigo-600 font-semibold hover:underline">Regístrate</button>
-                </p>
+                <input type="email" id="loginEmail" required placeholder="Correo electrónico" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                <input type="password" id="loginPassword" required placeholder="Contraseña" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow transition">Ingresar</button>
+                <p class="text-center text-xs text-slate-500 pt-1">¿No tienes cuenta? <button type="button" onclick="switchToRegister()" class="text-indigo-600 font-semibold hover:underline">Regístrate</button></p>
             </form>
         </div>
     </div>
 
     <!-- Modal: Registrarse -->
-    <div id="registerModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div id="registerModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center"><i class="fa-solid fa-user-plus"></i></div>
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-800">Crear Cuenta</h3>
-                        <p class="text-xs text-slate-500">Únete a la comunidad de Vista al Mar</p>
-                    </div>
-                </div>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                <h3 class="text-base font-bold text-slate-800">Crear Cuenta</h3>
                 <button onclick="closeModal('registerModal')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <form onsubmit="handleRegister(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Nombre Completo</label>
-                    <input type="text" id="regName" required placeholder="Ej. Carmen Rodríguez" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Correo Electrónico</label>
-                    <input type="email" id="regEmail" required placeholder="correo@ejemplo.com" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Contraseña</label>
-                    <input type="password" id="regPassword" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Rol en la Comunidad</label>
-                    <select id="regRole" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <option value="Vecino">Vecino (Crear reportes y reservas)</option>
-                        <option value="Líder Comunitario">Líder Comunitario / Administrador (Gestionar)</option>
-                    </select>
-                </div>
-                <div class="pt-2">
-                    <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium shadow-md shadow-emerald-100">Registrarse</button>
-                </div>
-                <p class="text-center text-xs text-slate-500 pt-2">
-                    ¿Ya tienes cuenta? <button type="button" onclick="switchToLogin()" class="text-emerald-600 font-semibold hover:underline">Inicia sesión</button>
-                </p>
+                <input type="text" id="regName" required placeholder="Nombre completo" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                <input type="email" id="regEmail" required placeholder="Correo electrónico" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                <input type="password" id="regPassword" required placeholder="Contraseña" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                <select id="regRole" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                    <option value="Vecino">Vecino</option>
+                    <option value="Líder Comunitario">Líder Comunitario / Admin</option>
+                </select>
+                <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow transition">Registrarse</button>
             </form>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-3 text-sm">
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-sm border border-slate-800">
         <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
-        <span id="toastMessage">Operación realizada con éxito</span>
+        <span id="toastMessage">Éxito</span>
     </div>
 
-    <!-- JAVASCRIPT APPLICATION LOGIC (SUPABASE INTEGRATION) -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         let reports = [];
         let comunicados = [];
         let directorio = [];
         let reservas = [];
+        let users = [];
         let currentUser = null;
         let activeTab = 'incidencias';
+        let capturedImageBase64 = '';
 
-        window.onload = async function() {
-            // Cargar sesión guardada localmente
-            const session = localStorage.getItem('vecinapp_session');
+        const defaultReports = [
+            { id: 1, title: 'Falla en luminaria principal', category: 'Alumbrado', sector: 'Parte Alta', description: 'El poste frente al callejón lleva tres días sin encender.', date: '2026-10-26', status: 'Pendiente', reporter: 'María Pérez', supports: 5, image: 'https://images.unsplash.com/photo-1541888946425-d0fbb18f86c8?auto=format&fit=crop&w=600&q=80' },
+            { id: 2, title: 'Bache profundo en la vía principal', category: 'Vías/Baches', sector: 'Calle Principal', description: 'Hueco de gran tamaño que dificulta el paso de vehículos.', date: '2026-10-25', status: 'En Proceso', reporter: 'Carlos Gómez', supports: 12, image: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&w=600&q=80' }
+        ];
+
+        const defaultComunicados = [
+            { id: 1, title: 'Suministro de Agua por Tubería', category: 'Agua', content: 'Este jueves se activará el bombeo a partir de las 08:00 AM.', date: '2026-10-26', author: 'Líder Comunitario' }
+        ];
+
+        const defaultDirectorio = [
+            { id: 1, name: 'Bodega San Benito', category: 'Alimentos y Bodega', contact: '0412-5551234', desc: 'Víveres y verduras frescas.' }
+        ];
+
+        const defaultReservas = [
+            { id: 1, espacio: 'Cancha Múltiple Vista al Mar', fecha: '2026-10-30', horario: '05:00 PM - 08:00 PM', motivo: 'Torneo relámpago', user: 'Carlos Vecino', status: 'Aprobada' }
+        ];
+
+        const defaultUsers = [
+            { name: 'Admin Comunitario', email: 'admin@vecinapp.com', password: '123', role: 'Líder Comunitario' },
+            { name: 'María Vecina', email: 'vecina@vecinapp.com', password: '123', role: 'Vecino' }
+        ];
+
+        window.onload = function() {
+            reports = loadStorage('v_reports', defaultReports);
+            comunicados = loadStorage('v_comunicados', defaultComunicados);
+            directorio = loadStorage('v_directorio', defaultDirectorio);
+            reservas = loadStorage('v_reservas', defaultReservas);
+            users = loadStorage('v_users', defaultUsers);
+
+            const session = localStorage.getItem('v_session');
             if(session) { try { currentUser = JSON.parse(session); } catch(e){ currentUser = null; } }
 
-            // Cargar todos los datos desde Supabase
-            await loadAllDataFromSupabase();
             renderApp();
         };
 
-        async function loadAllDataFromSupabase() {
-            try {
-                // 1. Reportes
-                const { data: repData, error: repErr } = await _supabase.from('reports').select('*').order('created_at', { ascending: false });
-                if(!repErr && repData) reports = repData;
+        function loadStorage(key, fallback) {
+            const data = localStorage.getItem(key);
+            if(data) { try { return JSON.parse(data); } catch(e){ return fallback; } }
+            localStorage.setItem(key, JSON.stringify(fallback));
+            return fallback;
+        }
 
-                // 2. Comunicados
-                const { data: comData, error: comErr } = await _supabase.from('announcements').select('*').order('created_at', { ascending: false });
-                if(!comErr && comData) comunicados = comData;
+        function saveAll() {
+            localStorage.setItem('v_reports', JSON.stringify(reports));
+            localStorage.setItem('v_comunicados', JSON.stringify(comunicados));
+            localStorage.setItem('v_directorio', JSON.stringify(directorio));
+            localStorage.setItem('v_reservas', JSON.stringify(reservas));
+            localStorage.setItem('v_users', JSON.stringify(users));
+            if(currentUser) localStorage.setItem('v_session', JSON.stringify(currentUser));
+            else localStorage.removeItem('v_session');
+        }
 
-                // 3. Directorio
-                const { data: dirData, error: dirErr } = await _supabase.from('directory').select('*').order('created_at', { ascending: false });
-                if(!dirErr && dirData) directorio = dirData;
-
-                // 4. Reservas
-                const { data: resData, error: resErr } = await _supabase.from('reservations').select('*').order('created_at', { ascending: false });
-                if(!resErr && resData) reservas = resData;
-
-            } catch (err) {
-                console.error("Error conectando con Supabase:", err);
-                showToast('Error al conectar con la base de datos', 'info');
+        // Manejo de cámara y fotos
+        function handleImageCapture(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(uploadEvent) {
+                    capturedImageBase64 = uploadEvent.target.result;
+                    document.getElementById('imagePreviewElement').src = capturedImageBase64;
+                    document.getElementById('imagePreviewBox').classList.remove('hidden');
+                    document.getElementById('imageStatusText').textContent = 'Foto lista ✔';
+                };
+                reader.readAsDataURL(file);
             }
         }
 
-        // Tab Switching
+        function clearImage() {
+            capturedImageBase64 = '';
+            document.getElementById('cameraInput').value = '';
+            document.getElementById('imagePreviewBox').classList.add('hidden');
+            document.getElementById('imageStatusText').textContent = 'Ninguna foto';
+        }
+
         function switchTab(tabId) {
             activeTab = tabId;
             document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
 
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.className = 'tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap text-slate-600 hover:bg-slate-200/60';
+                btn.className = 'tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap text-slate-300 hover:bg-slate-800';
             });
-            document.getElementById(`tabBtn-${tabId}`).className = 'tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap bg-indigo-600 text-white shadow-sm';
+            document.getElementById(`tabBtn-${tabId}`).className = 'tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 whitespace-nowrap bg-indigo-600 text-white shadow-md shadow-indigo-600/30';
 
             renderActiveTabContent();
         }
@@ -572,55 +472,43 @@
             else if(activeTab === 'estadisticas') renderEstadisticas();
         }
 
-        // Modals
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { 
             document.getElementById(id).classList.add('hidden'); 
             const form = document.querySelector(`#${id} form`);
             if(form) form.reset();
+            if(id === 'reportModal') clearImage();
         }
 
         function switchToRegister() { closeModal('loginModal'); openModal('registerModal'); }
         function switchToLogin() { closeModal('registerModal'); openModal('loginModal'); }
 
-        // Auth Supabase
-        async function handleRegister(e) {
+        function handleRegister(e) {
             e.preventDefault();
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const password = document.getElementById('regPassword').value;
             const role = document.getElementById('regRole').value;
 
-            // Verificar si ya existe en Supabase
-            const { data: existing } = await _supabase.from('users').select('*').eq('email', email);
-            if(existing && existing.length > 0) { showToast('El correo ya está registrado', 'info'); return; }
+            if(users.some(u => u.email === email)) { showToast('El correo ya está registrado', 'info'); return; }
 
-            const newUser = { name, email, password, role };
-            const { error } = await _supabase.from('users').insert([newUser]);
-
-            if(error) {
-                showToast('Error al registrar usuario', 'info');
-                return;
-            }
-
+            users.push({ name, email, password, role });
             currentUser = { name, email, role };
-            localStorage.setItem('vecinapp_session', JSON.stringify(currentUser));
+            saveAll();
             closeModal('registerModal');
             renderApp();
             showToast(`¡Bienvenido/a, ${name}!`);
         }
 
-        async function handleLogin(e) {
+        function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value;
 
-            const { data: usersFound, error } = await _supabase.from('users').select('*').eq('email', email).eq('password', password);
-
-            if(!error && usersFound && usersFound.length > 0) {
-                const found = usersFound[0];
+            const found = users.find(u => u.email === email && u.password === password);
+            if(found) {
                 currentUser = { name: found.name, email: found.email, role: found.role };
-                localStorage.setItem('vecinapp_session', JSON.stringify(currentUser));
+                saveAll();
                 closeModal('loginModal');
                 renderApp();
                 showToast(`Sesión iniciada: ${found.name}`);
@@ -631,12 +519,11 @@
 
         function logout() {
             currentUser = null;
-            localStorage.removeItem('vecinapp_session');
+            saveAll();
             renderApp();
             showToast('Sesión cerrada', 'info');
         }
 
-        // Toast
         function showToast(msg, type='success') {
             const toast = document.getElementById('toast');
             document.getElementById('toastMessage').textContent = msg;
@@ -646,7 +533,6 @@
             setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
         }
 
-        // Render Auth Header Button
         function renderHeaderAuth() {
             const container = document.getElementById('headerAuthContainer');
             const btnAddCom = document.getElementById('btnAddComunicado');
@@ -655,95 +541,71 @@
                 if(isAdmin && btnAddCom) btnAddCom.classList.remove('hidden'); else if(btnAddCom) btnAddCom.classList.add('hidden');
                 
                 container.innerHTML = `
-                    <div class="flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-                        <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">${currentUser.name.charAt(0)}</div>
+                    <div class="flex items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700">
+                        <div class="w-7 h-7 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs font-bold">${currentUser.name.charAt(0)}</div>
                         <div class="hidden sm:block text-left leading-tight">
-                            <span class="block text-xs font-bold text-slate-800">${escapeHtml(currentUser.name)}</span>
-                            <span class="block text-[10px] text-${isAdmin?'emerald':'indigo'}-600 font-semibold">${currentUser.role}</span>
+                            <span class="block text-xs font-bold text-white">${escapeHtml(currentUser.name)}</span>
+                            <span class="block text-[10px] text-emerald-400 font-semibold">${currentUser.role}</span>
                         </div>
                     </div>
-                    <button onclick="openModal('reportModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-medium text-sm transition shadow-md shadow-indigo-100 flex items-center space-x-2">
-                        <i class="fa-solid fa-plus"></i>
-                        <span class="hidden sm:inline">Reportar</span>
-                    </button>
-                    <button onclick="logout()" title="Cerrar Sesión" class="w-9 h-9 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 rounded-xl flex items-center justify-center transition border border-slate-200">
+                    <button onclick="logout()" title="Cerrar Sesión" class="w-9 h-9 bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-400 rounded-xl flex items-center justify-center transition border border-slate-700">
                         <i class="fa-solid fa-power-off text-sm"></i>
                     </button>
                 `;
             } else {
                 if(btnAddCom) btnAddCom.classList.add('hidden');
                 container.innerHTML = `
-                    <button onclick="openModal('loginModal')" class="text-slate-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition">Iniciar Sesión</button>
-                    <button onclick="openModal('registerModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-medium text-sm transition shadow-md shadow-indigo-100">Registrarse</button>
+                    <button onclick="openModal('loginModal')" class="text-slate-300 hover:text-white px-3 py-2 text-sm font-medium transition">Entrar</button>
+                    <button onclick="openModal('registerModal')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl font-medium text-sm transition shadow">Registro</button>
                 `;
             }
         }
 
-        // INCIDENCIAS SUPABASE
-        async function handleReportSubmit(e) {
+        // INCIDENCIAS (ESTILO FEED SOCIAL)
+        function handleReportSubmit(e) {
             e.preventDefault();
-            if(!currentUser) { openModal('loginModal'); showToast('Debes iniciar sesión para reportar', 'info'); return; }
+            if(!currentUser) { openModal('loginModal'); showToast('Inicia sesión para publicar', 'info'); return; }
 
             const newR = {
+                id: Date.now(),
                 title: document.getElementById('reportTitle').value.trim(),
                 category: document.getElementById('reportCategory').value,
                 sector: document.getElementById('reportSector').value,
                 description: document.getElementById('reportDescription').value.trim(),
-                image: document.getElementById('reportImage').value.trim() || 'https://placehold.co/600x400/e2e8f0/475569?text=Vista+al+Mar',
+                image: capturedImageBase64 || 'https://images.unsplash.com/photo-1584467735811-62848c463426?auto=format&fit=crop&w=600&q=80',
                 date: new Date().toISOString().split('T')[0],
                 status: 'Pendiente',
                 reporter: currentUser.name,
                 supports: 1
             };
 
-            const { error } = await _supabase.from('reports').insert([newR]);
-            if(error) { showToast('Error al guardar el reporte', 'info'); return; }
-
-            await loadAllDataFromSupabase();
+            reports.unshift(newR);
+            saveAll();
             closeModal('reportModal');
-            renderActiveTabContent();
-            showToast('¡Incidencia registrada en Supabase!');
+            renderIncidencias();
+            showToast('¡Incidencia publicada en el muro!');
         }
 
-        async function supportReport(id) {
+        function supportReport(id) {
             const r = reports.find(item => item.id === id);
-            if(r) {
-                const newSupports = r.supports + 1;
-                const { error } = await _supabase.from('reports').update({ supports: newSupports }).eq('id', id);
-                if(!error) {
-                    await loadAllDataFromSupabase();
-                    renderIncidencias();
-                    showToast('¡Apoyaste este reporte!');
-                }
-            }
+            if(r) { r.supports++; saveAll(); renderIncidencias(); showToast('¡Apoyaste este reporte!'); }
         }
 
-        async function updateReportStatus(id, status) {
+        function updateReportStatus(id, status) {
             if(!currentUser || currentUser.role !== 'Líder Comunitario') return;
-            const { error } = await _supabase.from('reports').update({ status: status }).eq('id', id);
-            if(!error) {
-                await loadAllDataFromSupabase();
-                renderIncidencias();
-                showToast(`Estado actualizado a: ${status}`);
-            }
+            const r = reports.find(item => item.id === id);
+            if(r) { r.status = status; saveAll(); renderIncidencias(); showToast(`Estado actualizado: ${status}`); }
         }
 
-        async function deleteReport(id) {
+        function deleteReport(id) {
             if(!currentUser || currentUser.role !== 'Líder Comunitario') return;
-            const { error } = await _supabase.from('reports').delete().eq('id', id);
-            if(!error) {
-                await loadAllDataFromSupabase();
-                renderIncidencias();
-                showToast('Reporte eliminado', 'info');
-            }
+            reports = reports.filter(item => item.id !== id);
+            saveAll();
+            renderIncidencias();
+            showToast('Publicación eliminada', 'info');
         }
 
         function renderIncidencias() {
-            document.getElementById('statTotal').textContent = reports.length;
-            document.getElementById('statPending').textContent = reports.filter(r => r.status === 'Pendiente').length;
-            document.getElementById('statProcess').textContent = reports.filter(r => r.status === 'En Proceso').length;
-            document.getElementById('statResolved').textContent = reports.filter(r => r.status === 'Resuelto').length;
-
             const grid = document.getElementById('reportsGrid');
             const empty = document.getElementById('reportsEmpty');
             const search = document.getElementById('searchInput').value.toLowerCase();
@@ -769,168 +631,162 @@
                 if(r.status === 'Resuelto') badge = 'bg-emerald-100 text-emerald-800 border-emerald-200';
 
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition';
+                card.className = 'bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden transition hover:shadow-md';
                 card.innerHTML = `
-                    <div>
-                        <div class="h-40 bg-slate-100 relative overflow-hidden">
-                            <img src="${r.image}" alt="Evidencia" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x400/e2e8f0/475569?text=Vista+al+Mar'">
-                            <span class="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-xl text-xs font-semibold text-slate-700 shadow-sm">${r.category}</span>
-                            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-xl text-xs font-medium border ${badge}">${r.status}</span>
+                    <!-- Cabecera del Post (Autor y Fecha) -->
+                    <div class="p-4 sm:p-5 pb-3 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-sm">${r.reporter.charAt(0)}</div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">${escapeHtml(r.reporter)}</h4>
+                                <p class="text-[11px] text-slate-400 flex items-center"><i class="fa-solid fa-location-dot mr-1 text-indigo-500"></i>${escapeHtml(r.sector)} • ${r.date}</p>
+                            </div>
                         </div>
-                        <div class="p-5">
-                            <h4 class="text-base font-bold text-slate-800 mb-1">${escapeHtml(r.title)}</h4>
-                            <p class="text-xs text-slate-500 mb-2 flex items-center space-x-1"><i class="fa-solid fa-location-dot text-indigo-500"></i><span>${escapeHtml(r.sector)}</span></p>
-                            <p class="text-sm text-slate-600 mb-4">${escapeHtml(r.description)}</p>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${badge}">${r.status}</span>
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">${r.category}</span>
                         </div>
                     </div>
-                    <div class="p-5 pt-0">
-                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 mb-3">
-                            <span><i class="fa-regular fa-user mr-1"></i>${escapeHtml(r.reporter)}</span>
-                            <button onclick="supportReport(${r.id})" class="flex items-center space-x-1 text-indigo-600 font-semibold hover:bg-indigo-50 px-2 py-1 rounded-lg transition">
-                                <i class="fa-solid fa-thumbs-up"></i><span>Apoyar (${r.supports})</span>
-                            </button>
-                        </div>
+
+                    <!-- Texto del Post -->
+                    <div class="px-4 sm:px-5 pb-3">
+                        <h3 class="font-bold text-base text-slate-800 mb-1">${escapeHtml(r.title)}</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">${escapeHtml(r.description)}</p>
+                    </div>
+
+                    <!-- Foto de Evidencia estilo Red Social -->
+                    <div class="w-full bg-slate-900 max-h-96 overflow-hidden relative">
+                        <img src="${r.image}" alt="Evidencia" class="w-full h-full object-cover">
+                    </div>
+
+                    <!-- Barra de Interacciones -->
+                    <div class="p-4 sm:p-5 pt-3 flex items-center justify-between border-t border-slate-100 bg-slate-50/50">
+                        <button onclick="supportReport(${r.id})" class="flex items-center space-x-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2 rounded-xl text-xs font-bold transition">
+                            <i class="fa-solid fa-thumbs-up"></i>
+                            <span>Apoyar (${r.supports})</span>
+                        </button>
                         ${isAdmin ? `
-                            <div class="pt-3 border-t border-dashed border-slate-200 flex items-center justify-between gap-2">
-                                <select onchange="updateReportStatus(${r.id}, this.value)" class="bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 text-xs font-medium text-slate-700 flex-grow">
+                            <div class="flex items-center space-x-2">
+                                <select onchange="updateReportStatus(${r.id}, this.value)" class="bg-white border border-slate-200 rounded-xl px-2 py-1.5 text-xs font-medium text-slate-700">
                                     <option value="Pendiente" ${r.status==='Pendiente'?'selected':''}>Pendiente</option>
                                     <option value="En Proceso" ${r.status==='En Proceso'?'selected':''}>En Proceso</option>
                                     <option value="Resuelto" ${r.status==='Resuelto'?'selected':''}>Resuelto</option>
                                 </select>
-                                <button onclick="deleteReport(${r.id})" class="bg-rose-50 text-rose-600 hover:bg-rose-100 px-3 py-1 rounded-lg text-xs font-medium"><i class="fa-solid fa-trash-can"></i></button>
+                                <button onclick="deleteReport(${r.id})" class="bg-rose-50 text-rose-600 hover:bg-rose-100 p-2 rounded-xl text-xs"><i class="fa-solid fa-trash-can"></i></button>
                             </div>
-                        `:''}
+                        ` : ''}
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        // COMUNICADOS SUPABASE
-        async function handleComunicadoSubmit(e) {
+        // COMUNICADOS
+        function handleComunicadoSubmit(e) {
             e.preventDefault();
             const newC = {
+                id: Date.now(),
                 title: document.getElementById('comTitulo').value.trim(),
                 category: document.getElementById('comCat').value,
                 content: document.getElementById('comContenido').value.trim(),
                 date: new Date().toISOString().split('T')[0],
-                author: currentUser ? currentUser.name : 'Líder Comunitario'
+                author: currentUser ? currentUser.name : 'Líder'
             };
-            const { error } = await _supabase.from('announcements').insert([newC]);
-            if(!error) {
-                await loadAllDataFromSupabase();
-                closeModal('comunicadoModal');
-                renderComunicados();
-                showToast('Comunicado publicado en Supabase');
-            }
+            comunicados.unshift(newC);
+            saveAll();
+            closeModal('comunicadoModal');
+            renderComunicados();
+            showToast('Comunicado publicado');
         }
 
         function renderComunicados() {
             const grid = document.getElementById('comunicadosGrid');
             grid.innerHTML = '';
             comunicados.forEach(c => {
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between';
-                card.innerHTML = `
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-semibold">${c.category}</span>
-                            <span class="text-xs text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>${c.date}</span>
+                grid.innerHTML += `
+                    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-2">
+                        <div class="flex justify-between text-xs text-slate-400">
+                            <span class="bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full font-semibold">${c.category}</span>
+                            <span>${c.date}</span>
                         </div>
-                        <h4 class="text-lg font-bold text-slate-800 mb-2">${escapeHtml(c.title)}</h4>
-                        <p class="text-sm text-slate-600 mb-4">${escapeHtml(c.content)}</p>
-                    </div>
-                    <div class="pt-3 border-t border-slate-100 text-xs text-slate-500 flex items-center justify-between">
-                        <span>Emisor: <strong>${escapeHtml(c.author)}</strong></span>
-                        <span class="text-emerald-600 font-medium">Oficial</span>
+                        <h4 class="font-bold text-slate-900">${escapeHtml(c.title)}</h4>
+                        <p class="text-sm text-slate-600">${escapeHtml(c.content)}</p>
                     </div>
                 `;
-                grid.appendChild(card);
             });
         }
 
-        // DIRECTORIO SUPABASE
-        async function handleNegocioSubmit(e) {
+        // DIRECTORIO
+        function handleNegocioSubmit(e) {
             e.preventDefault();
             const newN = {
+                id: Date.now(),
                 name: document.getElementById('negNombre').value.trim(),
                 category: document.getElementById('negCategoria').value,
                 contact: document.getElementById('negContacto').value.trim(),
                 desc: document.getElementById('negDesc').value.trim()
             };
-            const { error } = await _supabase.from('directory').insert([newN]);
-            if(!error) {
-                await loadAllDataFromSupabase();
-                closeModal('negocioModal');
-                renderDirectorio();
-                showToast('¡Negocio guardado en Supabase!');
-            }
+            directorio.unshift(newN);
+            saveAll();
+            closeModal('negocioModal');
+            renderDirectorio();
+            showToast('Negocio agregado');
         }
 
         function renderDirectorio() {
             const grid = document.getElementById('directorioGrid');
             grid.innerHTML = '';
             directorio.forEach(n => {
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between hover:shadow-md transition';
-                card.innerHTML = `
-                    <div>
-                        <span class="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-xl text-xs font-semibold inline-block mb-3">${n.category}</span>
-                        <h4 class="text-lg font-bold text-slate-800 mb-1">${escapeHtml(n.name)}</h4>
-                        <p class="text-sm text-slate-600 mb-4">${escapeHtml(n.desc)}</p>
-                    </div>
-                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-sm">
-                        <span class="text-slate-500 flex items-center space-x-1"><i class="fa-solid fa-phone text-emerald-500"></i><strong>${escapeHtml(n.contact)}</strong></span>
-                        <a href="https://wa.me/58${n.contact.replace(/[^0-9]/g,'')}" target="_blank" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-xl text-xs font-semibold transition"><i class="fa-brands fa-whatsapp mr-1"></i>Contactar</a>
+                grid.innerHTML += `
+                    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-semibold">${n.category}</span>
+                            <h4 class="font-bold text-slate-900 mt-2">${escapeHtml(n.name)}</h4>
+                            <p class="text-xs text-slate-500 mt-1">${escapeHtml(n.desc)}</p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span class="font-semibold text-slate-700"><i class="fa-solid fa-phone text-emerald-500 mr-1"></i>${escapeHtml(n.contact)}</span>
+                            <a href="https://wa.me/58${n.contact.replace(/\D/g,'')}" target="_blank" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-xl font-medium">WhatsApp</a>
+                        </div>
                     </div>
                 `;
-                grid.appendChild(card);
             });
         }
 
-        // RESERVAS SUPABASE
-        async function handleReservaSubmit(e) {
+        // RESERVAS
+        function handleReservaSubmit(e) {
             e.preventDefault();
-            if(!currentUser) { openModal('loginModal'); showToast('Inicia sesión para reservar', 'info'); return; }
-
+            if(!currentUser) { openModal('loginModal'); showToast('Inicia sesión', 'info'); return; }
             const newR = {
+                id: Date.now(),
                 espacio: document.getElementById('resEspacio').value,
                 fecha: document.getElementById('resFecha').value,
                 horario: document.getElementById('resHorario').value,
                 motivo: document.getElementById('resMotivo').value.trim(),
-                user_name: currentUser.name,
+                user: currentUser.name,
                 status: 'Aprobada'
             };
-            const { error } = await _supabase.from('reservations').insert([newR]);
-            if(!error) {
-                await loadAllDataFromSupabase();
-                closeModal('reservaModal');
-                renderReservas();
-                showToast('¡Reserva guardada en Supabase!');
-            }
+            reservas.unshift(newR);
+            saveAll();
+            closeModal('reservaModal');
+            renderReservas();
+            showToast('Espacio reservado');
         }
 
         function renderReservas() {
             const grid = document.getElementById('reservasGrid');
             grid.innerHTML = '';
             reservas.forEach(r => {
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between';
-                card.innerHTML = `
-                    <div>
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="px-3 py-1 bg-blue-50 text-blue-600 rounded-xl text-xs font-semibold">${r.espacio}</span>
-                            <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-xl text-xs font-medium">${r.status}</span>
+                grid.innerHTML += `
+                    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex justify-between items-center">
+                        <div>
+                            <span class="bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-full font-semibold">${r.espacio}</span>
+                            <h4 class="font-bold text-slate-900 mt-2">${escapeHtml(r.motivo)}</h4>
+                            <p class="text-xs text-slate-500 mt-0.5"><i class="fa-regular fa-calendar mr-1"></i>${r.fecha} • ${r.horario}</p>
                         </div>
-                        <h4 class="text-base font-bold text-slate-800 mb-1">${escapeHtml(r.motivo)}</h4>
-                        <p class="text-xs text-slate-500 mb-2"><i class="fa-regular fa-calendar mr-1"></i>Fecha: <strong>${r.fecha}</strong></p>
-                        <p class="text-xs text-slate-500 mb-4"><i class="fa-regular fa-clock mr-1"></i>Horario: <strong>${r.horario}</strong></p>
-                    </div>
-                    <div class="pt-3 border-t border-slate-100 text-xs text-slate-400">
-                        <span>Solicitante: <strong>${escapeHtml(r.user_name)}</strong></span>
+                        <span class="bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-bold">Aprobada</span>
                     </div>
                 `;
-                grid.appendChild(card);
             });
         }
 
@@ -939,24 +795,22 @@
             const total = reports.length;
             const resolved = reports.filter(r => r.status === 'Resuelto').length;
             const percent = total > 0 ? Math.round((resolved / total) * 100) : 0;
-            
             document.getElementById('statPercent').textContent = percent + '%';
-            
-            const cats = ['Alumbrado', 'Agua', 'Vías/Baches', 'Basura', 'Seguridad', 'Otro'];
-            const barsContainer = document.getElementById('categoryStatsBars');
-            barsContainer.innerHTML = '';
 
+            const cats = ['Alumbrado', 'Agua', 'Vías/Baches', 'Basura', 'Seguridad', 'Otro'];
+            const bars = document.getElementById('categoryStatsBars');
+            bars.innerHTML = '';
             cats.forEach(cat => {
                 const count = reports.filter(r => r.category === cat).length;
                 const ratio = total > 0 ? Math.round((count / total) * 100) : 0;
-                barsContainer.innerHTML += `
+                bars.innerHTML += `
                     <div>
-                        <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                        <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1">
                             <span>${cat}</span>
                             <span>${count} (${ratio}%)</span>
                         </div>
-                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                            <div class="bg-indigo-600 h-full rounded-full" style="width: ${ratio}%"></div>
+                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: ${ratio}%"></div>
                         </div>
                     </div>
                 `;
@@ -976,3 +830,5 @@
     </script>
 </body>
 </html>
+
+
