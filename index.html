@@ -10,11 +10,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- CONFIGURACIÓN DE SUPABASE (Tus llaves configuradas) -->
+    <script>
+        const SUPABASE_URL = 'https://pwqbirdbnekjtvazovlw.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_tu_codigo_largo_aqui'; // <-- Pega aquí tu Publishable key de Supabase
+        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
 
     <!-- Header / Top Bar -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
@@ -32,7 +41,7 @@
 
             <!-- Actions Header / Auth Controls -->
             <div class="flex items-center space-x-3" id="headerAuthContainer">
-                <!-- Dynamically injected via JS based on session -->
+                <!-- Dinámico vía JS -->
             </div>
         </div>
 
@@ -71,16 +80,13 @@
             <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div class="relative z-10 max-w-2xl">
                 <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-3">Comunidad Organizada • Estado La Guaira</span>
-                <h2 id="welcomeTitle" class="text-2xl sm:text-3xl font-bold mb-2">Construyendo bienestar en Vista al Mar</h2>
-                <p id="welcomeSubtitle" class="text-slate-300 text-sm sm:text-base">Plataforma integral para reportes vecinales, directorio de servicios locales, reserva de espacios recreativos y comunicados oficiales.</p>
+                <h2 class="text-2xl sm:text-3xl font-bold mb-2">Construyendo bienestar en Vista al Mar</h2>
+                <p class="text-slate-300 text-sm sm:text-base">Plataforma integral para reportes vecinales, directorio de servicios locales, reserva de espacios recreativos y comunicados oficiales.</p>
             </div>
         </div>
 
-        <!-- TAB VIEWS CONTAINER -->
-
         <!-- TAB 1: INCIDENCIAS -->
         <section id="view-incidencias" class="tab-view space-y-6">
-            <!-- Stats Bar -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                     <div>
@@ -143,7 +149,6 @@
                 </div>
             </div>
 
-            <!-- Incidencias Grid -->
             <div id="reportsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             <div id="reportsEmpty" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200">
                 <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fa-solid fa-folder-open"></i></div>
@@ -215,9 +220,7 @@
                 </div>
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                     <h4 class="text-sm font-bold text-slate-700 mb-4">Reportes por Categoría</h4>
-                    <div id="categoryStatsBars" class="space-y-3">
-                        <!-- Filled by JS -->
-                    </div>
+                    <div id="categoryStatsBars" class="space-y-3"></div>
                 </div>
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                     <h4 class="text-sm font-bold text-slate-700 mb-4">Resumen General del Sistema</h4>
@@ -225,7 +228,7 @@
                         <li class="flex justify-between border-b pb-2"><span>Comunidad:</span> <strong class="text-slate-800">Vista al Mar</strong></li>
                         <li class="flex justify-between border-b pb-2"><span>Parroquia:</span> <strong class="text-slate-800">Catia La Mar</strong></li>
                         <li class="flex justify-between border-b pb-2"><span>Estado:</span> <strong class="text-slate-800">La Guaira</strong></li>
-                        <li class="flex justify-between"><span>Plataforma:</span> <strong class="text-indigo-600">VecinApp v2.5</strong></li>
+                        <li class="flex justify-between"><span>Plataforma:</span> <strong class="text-indigo-600">VecinApp v2.5 Supabase</strong></li>
                     </ul>
                 </div>
             </div>
@@ -282,7 +285,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Descripción Detallada</label>
-                    <textarea id="reportDescription" rows="3" required placeholder="Explica la situación y cómo afecta a los vecinos..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                    <textarea id="reportDescription" rows="3" required placeholder="Explica la situación..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Foto o Evidencia (URL opcional)</label>
@@ -312,7 +315,7 @@
             <form onsubmit="handleNegocioSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Nombre del Negocio o Servicio</label>
-                    <input type="text" id="negNombre" required placeholder="Ej. Bodega y Víveres San Benito" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <input type="text" id="negNombre" required placeholder="Ej. Bodega San Benito" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Categoría</label>
@@ -330,7 +333,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Descripción Breve</label>
-                    <textarea id="negDesc" rows="2" required placeholder="Venta de víveres, verduras frescas..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                    <textarea id="negDesc" rows="2" required placeholder="Venta de víveres..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
                 </div>
                 <div class="pt-2">
                     <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium shadow-md shadow-emerald-100">Guardar en Directorio</button>
@@ -376,7 +379,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Propósito o Actividad</label>
-                    <input type="text" id="resMotivo" required placeholder="Ej. Torneo infantil de básquet / Reunión vecinal" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="resMotivo" required placeholder="Ej. Torneo infantil de básquet" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div class="pt-2">
                     <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-md shadow-blue-100">Solicitar Reserva</button>
@@ -401,7 +404,7 @@
             <form onsubmit="handleComunicadoSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Título del Comunicado</label>
-                    <input type="text" id="comTitulo" required placeholder="Ej. Cronograma de suministro de agua por tubería" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <input type="text" id="comTitulo" required placeholder="Ej. Cronograma de agua" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Categoría del Aviso</label>
@@ -414,7 +417,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">Contenido del Comunicado</label>
-                    <textarea id="comContenido" rows="4" required placeholder="Detalles del aviso oficial..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                    <textarea id="comContenido" rows="4" required placeholder="Detalles del aviso..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
                 </div>
                 <div class="pt-2">
                     <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium shadow-md shadow-indigo-100">Publicar Aviso Oficial</button>
@@ -504,72 +507,47 @@
         <span id="toastMessage">Operación realizada con éxito</span>
     </div>
 
-    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <!-- JAVASCRIPT APPLICATION LOGIC (SUPABASE INTEGRATION) -->
     <script>
-        // Initial Mock Data
-        const defaultReports = [
-            { id: 1, title: 'Falla en luminaria principal de la calle', category: 'Alumbrado', sector: 'Sector Vista al Mar (Parte Alta)', description: 'El poste de luz frente al callejón lleva tres días parpadeando y se apagó.', date: '2026-10-20', status: 'Pendiente', reporter: 'María Pérez', supports: 5 },
-            { id: 2, title: 'Bache profundo en entrada principal', category: 'Vías/Baches', sector: 'Calle Principal Vista al Mar', description: 'Hueco de gran tamaño que afecta el tránsito de vehículos y autobuses.', date: '2026-10-18', status: 'En Proceso', reporter: 'Carlos Gómez', supports: 12 },
-            { id: 3, title: 'Retraso en recolección de desechos sólidos', category: 'Basura', sector: 'Sector Vista al Mar (Parte Baja)', description: 'El camión no ha pasado en su ruta semanal habitual.', date: '2026-10-15', status: 'Resuelto', reporter: 'Ana Rodríguez', supports: 8 }
-        ];
-
-        const defaultComunicados = [
-            { id: 1, title: 'Cronograma de Suministro de Agua por Tubería', category: 'Agua', content: 'Se informa a toda la comunidad de Vista al Mar que el bombeo de agua correspondiente a este ciclo se realizará este jueves a partir de las 08:00 AM.', date: '2026-10-26', author: 'Líder Comunitario' },
-            { id: 2, title: 'Asamblea General Vecinal de Seguridad', category: 'Asamblea', content: 'Invitamos a todos los vecinos a la cancha múltiple este sábado a las 05:00 PM para coordinar mejoras en el alumbrado y vigilancia nocturna.', date: '2026-10-24', author: 'Consejo Comunal' }
-        ];
-
-        const defaultDirectorio = [
-            { id: 1, name: 'Bodega y Víveres San Benito', category: 'Alimentos y Bodega', contact: '0412-5551234', desc: 'Venta de víveres al mayor y detal, verduras frescas y hielo.' },
-            { id: 2, name: 'Servicio Técnico Eléctrico Hogar', category: 'Servicio Técnico / Hogar', contact: '0414-7778901', desc: 'Reparación de aires acondicionados, bombas de agua y sistemas eléctricos.' },
-            { id: 3, name: 'Repostería Casera Dulce Mar', category: 'Comida Rápida / Repostería', contact: '0424-3334567', desc: 'Tortas por encargo, quesillos y dulces criollos.' }
-        ];
-
-        const defaultReservas = [
-            { id: 1, espacio: 'Cancha Múltiple Vista al Mar', fecha: '2026-10-30', horario: '05:00 PM - 08:00 PM', motivo: 'Torneo relámpago de básquet juvenil', user: 'Carlos Vecino', status: 'Aprobada' }
-        ];
-
-        const defaultUsers = [
-            { name: 'Carlos Administrador', email: 'admin@vecinapp.com', password: '123', role: 'Líder Comunitario' },
-            { name: 'María Vecina', email: 'vecina@vecinapp.com', password: '123', role: 'Vecino' }
-        ];
-
         let reports = [];
         let comunicados = [];
         let directorio = [];
         let reservas = [];
-        let users = [];
         let currentUser = null;
         let activeTab = 'incidencias';
 
-        window.onload = function() {
-            // LocalStorage loaders
-            reports = loadStorage('vecinapp_reports', defaultReports);
-            comunicados = loadStorage('vecinapp_comunicados', defaultComunicados);
-            directorio = loadStorage('vecinapp_directorio', defaultDirectorio);
-            reservas = loadStorage('vecinapp_reservas', defaultReservas);
-            users = loadStorage('vecinapp_users', defaultUsers);
-            
+        window.onload = async function() {
+            // Cargar sesión guardada localmente
             const session = localStorage.getItem('vecinapp_session');
             if(session) { try { currentUser = JSON.parse(session); } catch(e){ currentUser = null; } }
 
+            // Cargar todos los datos desde Supabase
+            await loadAllDataFromSupabase();
             renderApp();
         };
 
-        function loadStorage(key, fallback) {
-            const data = localStorage.getItem(key);
-            if(data) { try { return JSON.parse(data); } catch(e){ return fallback; } }
-            localStorage.setItem(key, JSON.stringify(fallback));
-            return fallback;
-        }
+        async function loadAllDataFromSupabase() {
+            try {
+                // 1. Reportes
+                const { data: repData, error: repErr } = await _supabase.from('reports').select('*').order('created_at', { ascending: false });
+                if(!repErr && repData) reports = repData;
 
-        function saveAll() {
-            localStorage.setItem('vecinapp_reports', JSON.stringify(reports));
-            localStorage.setItem('vecinapp_comunicados', JSON.stringify(comunicados));
-            localStorage.setItem('vecinapp_directorio', JSON.stringify(directorio));
-            localStorage.setItem('vecinapp_reservas', JSON.stringify(reservas));
-            localStorage.setItem('vecinapp_users', JSON.stringify(users));
-            if(currentUser) localStorage.setItem('vecinapp_session', JSON.stringify(currentUser));
-            else localStorage.removeItem('vecinapp_session');
+                // 2. Comunicados
+                const { data: comData, error: comErr } = await _supabase.from('announcements').select('*').order('created_at', { ascending: false });
+                if(!comErr && comData) comunicados = comData;
+
+                // 3. Directorio
+                const { data: dirData, error: dirErr } = await _supabase.from('directory').select('*').order('created_at', { ascending: false });
+                if(!dirErr && dirData) directorio = dirData;
+
+                // 4. Reservas
+                const { data: resData, error: resErr } = await _supabase.from('reservations').select('*').order('created_at', { ascending: false });
+                if(!resErr && resData) reservas = resData;
+
+            } catch (err) {
+                console.error("Error conectando con Supabase:", err);
+                showToast('Error al conectar con la base de datos', 'info');
+            }
         }
 
         // Tab Switching
@@ -598,40 +576,51 @@
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { 
             document.getElementById(id).classList.add('hidden'); 
-            const form = document.querySelector(`#id ${id} form`) || document.querySelector(`#${id} form`);
+            const form = document.querySelector(`#${id} form`);
             if(form) form.reset();
         }
 
         function switchToRegister() { closeModal('loginModal'); openModal('registerModal'); }
         function switchToLogin() { closeModal('registerModal'); openModal('loginModal'); }
 
-        // Auth
-        function handleRegister(e) {
+        // Auth Supabase
+        async function handleRegister(e) {
             e.preventDefault();
             const name = document.getElementById('regName').value.trim();
             const email = document.getElementById('regEmail').value.trim().toLowerCase();
             const password = document.getElementById('regPassword').value;
             const role = document.getElementById('regRole').value;
 
-            if(users.some(u => u.email === email)) { showToast('El correo ya está registrado', 'info'); return; }
+            // Verificar si ya existe en Supabase
+            const { data: existing } = await _supabase.from('users').select('*').eq('email', email);
+            if(existing && existing.length > 0) { showToast('El correo ya está registrado', 'info'); return; }
 
-            users.push({ name, email, password, role });
+            const newUser = { name, email, password, role };
+            const { error } = await _supabase.from('users').insert([newUser]);
+
+            if(error) {
+                showToast('Error al registrar usuario', 'info');
+                return;
+            }
+
             currentUser = { name, email, role };
-            saveAll();
+            localStorage.setItem('vecinapp_session', JSON.stringify(currentUser));
             closeModal('registerModal');
             renderApp();
             showToast(`¡Bienvenido/a, ${name}!`);
         }
 
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value.trim().toLowerCase();
             const password = document.getElementById('loginPassword').value;
 
-            const found = users.find(u => u.email === email && u.password === password);
-            if(found) {
+            const { data: usersFound, error } = await _supabase.from('users').select('*').eq('email', email).eq('password', password);
+
+            if(!error && usersFound && usersFound.length > 0) {
+                const found = usersFound[0];
                 currentUser = { name: found.name, email: found.email, role: found.role };
-                saveAll();
+                localStorage.setItem('vecinapp_session', JSON.stringify(currentUser));
                 closeModal('loginModal');
                 renderApp();
                 showToast(`Sesión iniciada: ${found.name}`);
@@ -642,7 +631,7 @@
 
         function logout() {
             currentUser = null;
-            saveAll();
+            localStorage.removeItem('vecinapp_session');
             renderApp();
             showToast('Sesión cerrada', 'info');
         }
@@ -663,7 +652,7 @@
             const btnAddCom = document.getElementById('btnAddComunicado');
             if(currentUser) {
                 const isAdmin = currentUser.role === 'Líder Comunitario';
-                if(isAdmin) btnAddCom.classList.remove('hidden'); else btnAddCom.classList.add('hidden');
+                if(isAdmin && btnAddCom) btnAddCom.classList.remove('hidden'); else if(btnAddCom) btnAddCom.classList.add('hidden');
                 
                 container.innerHTML = `
                     <div class="flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
@@ -682,7 +671,7 @@
                     </button>
                 `;
             } else {
-                btnAddCom.classList.add('hidden');
+                if(btnAddCom) btnAddCom.classList.add('hidden');
                 container.innerHTML = `
                     <button onclick="openModal('loginModal')" class="text-slate-700 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition">Iniciar Sesión</button>
                     <button onclick="openModal('registerModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-medium text-sm transition shadow-md shadow-indigo-100">Registrarse</button>
@@ -690,13 +679,12 @@
             }
         }
 
-        // INCIDENCIAS LOGIC
-        function handleReportSubmit(e) {
+        // INCIDENCIAS SUPABASE
+        async function handleReportSubmit(e) {
             e.preventDefault();
             if(!currentUser) { openModal('loginModal'); showToast('Debes iniciar sesión para reportar', 'info'); return; }
 
             const newR = {
-                id: Date.now(),
                 title: document.getElementById('reportTitle').value.trim(),
                 category: document.getElementById('reportCategory').value,
                 sector: document.getElementById('reportSector').value,
@@ -708,34 +696,49 @@
                 supports: 1
             };
 
-            reports.unshift(newR);
-            saveAll();
+            const { error } = await _supabase.from('reports').insert([newR]);
+            if(error) { showToast('Error al guardar el reporte', 'info'); return; }
+
+            await loadAllDataFromSupabase();
             closeModal('reportModal');
             renderActiveTabContent();
-            showToast('¡Incidencia registrada con éxito!');
+            showToast('¡Incidencia registrada en Supabase!');
         }
 
-        function supportReport(id) {
+        async function supportReport(id) {
             const r = reports.find(item => item.id === id);
-            if(r) { r.supports++; saveAll(); renderIncidencias(); showToast('¡Apoyaste este reporte!'); }
+            if(r) {
+                const newSupports = r.supports + 1;
+                const { error } = await _supabase.from('reports').update({ supports: newSupports }).eq('id', id);
+                if(!error) {
+                    await loadAllDataFromSupabase();
+                    renderIncidencias();
+                    showToast('¡Apoyaste este reporte!');
+                }
+            }
         }
 
-        function updateReportStatus(id, status) {
+        async function updateReportStatus(id, status) {
             if(!currentUser || currentUser.role !== 'Líder Comunitario') return;
-            const r = reports.find(item => item.id === id);
-            if(r) { r.status = status; saveAll(); renderIncidencias(); showToast(`Estado actualizado a: ${status}`); }
+            const { error } = await _supabase.from('reports').update({ status: status }).eq('id', id);
+            if(!error) {
+                await loadAllDataFromSupabase();
+                renderIncidencias();
+                showToast(`Estado actualizado a: ${status}`);
+            }
         }
 
-        function deleteReport(id) {
+        async function deleteReport(id) {
             if(!currentUser || currentUser.role !== 'Líder Comunitario') return;
-            reports = reports.filter(item => item.id !== id);
-            saveAll();
-            renderIncidencias();
-            showToast('Reporte eliminado', 'info');
+            const { error } = await _supabase.from('reports').delete().eq('id', id);
+            if(!error) {
+                await loadAllDataFromSupabase();
+                renderIncidencias();
+                showToast('Reporte eliminado', 'info');
+            }
         }
 
         function renderIncidencias() {
-            // Update stats
             document.getElementById('statTotal').textContent = reports.length;
             document.getElementById('statPending').textContent = reports.filter(r => r.status === 'Pendiente').length;
             document.getElementById('statProcess').textContent = reports.filter(r => r.status === 'En Proceso').length;
@@ -803,22 +806,23 @@
             });
         }
 
-        // COMUNICADOS LOGIC
-        function handleComunicadoSubmit(e) {
+        // COMUNICADOS SUPABASE
+        async function handleComunicadoSubmit(e) {
             e.preventDefault();
             const newC = {
-                id: Date.now(),
                 title: document.getElementById('comTitulo').value.trim(),
                 category: document.getElementById('comCat').value,
                 content: document.getElementById('comContenido').value.trim(),
                 date: new Date().toISOString().split('T')[0],
                 author: currentUser ? currentUser.name : 'Líder Comunitario'
             };
-            comunicados.unshift(newC);
-            saveAll();
-            closeModal('comunicadoModal');
-            renderComunicados();
-            showToast('Comunicado publicado con éxito');
+            const { error } = await _supabase.from('announcements').insert([newC]);
+            if(!error) {
+                await loadAllDataFromSupabase();
+                closeModal('comunicadoModal');
+                renderComunicados();
+                showToast('Comunicado publicado en Supabase');
+            }
         }
 
         function renderComunicados() {
@@ -845,21 +849,22 @@
             });
         }
 
-        // DIRECTORIO LOGIC
-        function handleNegocioSubmit(e) {
+        // DIRECTORIO SUPABASE
+        async function handleNegocioSubmit(e) {
             e.preventDefault();
             const newN = {
-                id: Date.now(),
                 name: document.getElementById('negNombre').value.trim(),
                 category: document.getElementById('negCategoria').value,
                 contact: document.getElementById('negContacto').value.trim(),
                 desc: document.getElementById('negDesc').value.trim()
             };
-            directorio.unshift(newN);
-            saveAll();
-            closeModal('negocioModal');
-            renderDirectorio();
-            showToast('¡Negocio registrado en el directorio!');
+            const { error } = await _supabase.from('directory').insert([newN]);
+            if(!error) {
+                await loadAllDataFromSupabase();
+                closeModal('negocioModal');
+                renderDirectorio();
+                showToast('¡Negocio guardado en Supabase!');
+            }
         }
 
         function renderDirectorio() {
@@ -883,25 +888,26 @@
             });
         }
 
-        // RESERVAS LOGIC
-        function handleReservaSubmit(e) {
+        // RESERVAS SUPABASE
+        async function handleReservaSubmit(e) {
             e.preventDefault();
             if(!currentUser) { openModal('loginModal'); showToast('Inicia sesión para reservar', 'info'); return; }
 
             const newR = {
-                id: Date.now(),
                 espacio: document.getElementById('resEspacio').value,
                 fecha: document.getElementById('resFecha').value,
                 horario: document.getElementById('resHorario').value,
                 motivo: document.getElementById('resMotivo').value.trim(),
-                user: currentUser.name,
+                user_name: currentUser.name,
                 status: 'Aprobada'
             };
-            reservas.unshift(newR);
-            saveAll();
-            closeModal('reservaModal');
-            renderReservas();
-            showToast('¡Espacio reservado con éxito!');
+            const { error } = await _supabase.from('reservations').insert([newR]);
+            if(!error) {
+                await loadAllDataFromSupabase();
+                closeModal('reservaModal');
+                renderReservas();
+                showToast('¡Reserva guardada en Supabase!');
+            }
         }
 
         function renderReservas() {
@@ -921,7 +927,7 @@
                         <p class="text-xs text-slate-500 mb-4"><i class="fa-regular fa-clock mr-1"></i>Horario: <strong>${r.horario}</strong></p>
                     </div>
                     <div class="pt-3 border-t border-slate-100 text-xs text-slate-400">
-                        <span>Solicitante: <strong>${escapeHtml(r.user)}</strong></span>
+                        <span>Solicitante: <strong>${escapeHtml(r.user_name)}</strong></span>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -963,10 +969,10 @@
         }
 
         function escapeHtml(text) {
+            if(!text) return '';
             const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
             return text.replace(/[&<>"']/g, m => map[m]);
         }
     </script>
 </body>
 </html>
-```
