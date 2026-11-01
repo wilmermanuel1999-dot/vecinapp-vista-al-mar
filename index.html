@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js para Gráficas Interactivas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
@@ -127,15 +129,45 @@
             <div id="reservasGrid" class="space-y-3"></div>
         </section>
 
-        <!-- TAB 5: ESTADISTICAS -->
+        <!-- TAB 5: ESTADISTICAS CON GRÁFICAS INTERACTIVAS -->
         <section id="view-estadisticas" class="tab-view space-y-4 hidden">
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <h3 class="text-sm font-bold text-slate-800">Métricas de la Comunidad</h3>
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-slate-800"><i class="fa-solid fa-chart-pie mr-2 text-indigo-600"></i>Métricas y Gráficas Interactivas</h3>
+                    <span class="text-[10px] bg-indigo-50 text-indigo-700 font-bold px-2.5 py-1 rounded-full uppercase">Tiempo Real</span>
+                </div>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                     <div class="bg-slate-50 p-4 rounded-xl border text-center">
                         <span class="text-[10px] font-semibold text-slate-400 uppercase">Eficacia General</span>
                         <h4 id="statPercent" class="text-3xl font-black text-indigo-600 mt-1">0%</h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Reportes resueltos vs total</p>
                     </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border text-center">
+                        <span class="text-[10px] font-semibold text-slate-400 uppercase">Comunidad Registrada</span>
+                        <h4 id="statTotalUsers" class="text-3xl font-black text-emerald-600 mt-1">0</h4>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Vecinos y líderes activos</p>
+                    </div>
+                </div>
+
+                <!-- Gráficas Interactivas -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                    <div class="bg-slate-50 p-4 rounded-xl border flex flex-col items-center">
+                        <h4 class="text-xs font-bold text-slate-700 mb-2">Incidencias por Categoría</h4>
+                        <div class="w-full h-48 relative flex items-center justify-center">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border flex flex-col items-center">
+                        <h4 class="text-xs font-bold text-slate-700 mb-2">Estado de Reportes</h4>
+                        <div class="w-full h-48 relative flex items-center justify-center">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2 border-t">
+                    <h4 class="text-xs font-bold text-slate-700 mb-2">Progreso porcentual</h4>
                     <div id="categoryStatsBars" class="space-y-2 text-xs"></div>
                 </div>
             </div>
@@ -279,7 +311,7 @@
         <span id="toastMessage">Éxito</span>
     </div>
 
-    <!-- JAVASCRIPT CON COMENTARIOS Y COMPRESIÓN DE CÁMARA -->
+    <!-- JAVASCRIPT CON GRÁFICAS INTERACTIVAS Y COMPRESIÓN -->
     <script>
         let reports = [];
         let comunicados = [];
@@ -289,6 +321,9 @@
         let currentUser = null;
         let activeTab = 'incidencias';
         let capturedImageBase64 = '';
+        
+        let categoryChartInstance = null;
+        let statusChartInstance = null;
 
         const defaultReports = [
             { id: 1, title: 'Falla en luminaria principal', category: 'Alumbrado', sector: 'Parte Alta', description: 'El poste frente al callejón lleva tres días sin encender.', date: '2026-10-26', status: 'Pendiente', reporter: 'María Pérez', supports: 5, image: 'https://images.unsplash.com/photo-1541888946425-d0fbb18f86c8?auto=format&fit=crop&w=500&q=80', comments: [{author: 'Carlos', text: 'Sí, por favor urgente.'}] }
@@ -610,18 +645,83 @@
             });
         }
 
-        // ESTADISTICAS
+        // ESTADISTICAS CON GRÁFICAS INTERACTIVAS DINÁMICAS
         function renderEstadisticas() {
             const total = reports.length;
             const resolved = reports.filter(r => r.status === 'Resuelto').length;
             document.getElementById('statPercent').textContent = total > 0 ? Math.round((resolved / total) * 100) + '%' : '0%';
+            
+            const totalUsers = users ? users.length : 0;
+            const userStatEl = document.getElementById('statTotalUsers');
+            if(userStatEl) userStatEl.textContent = totalUsers;
+
             const cats = ['Alumbrado', 'Agua', 'Vías/Baches', 'Basura', 'Seguridad'];
-            const bars = document.getElementById('categoryStatsBars'); bars.innerHTML = '';
-            cats.forEach(cat => {
-                const count = reports.filter(r => r.category === cat).length;
-                const ratio = total > 0 ? Math.round((count / total) * 100) : 0;
-                bars.innerHTML += `<div><div class="flex justify-between font-semibold text-slate-600 mb-0.5"><span>${cat}</span><span>${count} (${ratio}%)</span></div><div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div class="bg-indigo-600 h-full rounded-full" style="width: ${ratio}%"></div></div></div>`;
-            });
+            const bars = document.getElementById('categoryStatsBars'); 
+            if(bars) {
+                bars.innerHTML = '';
+                cats.forEach(cat => {
+                    const count = reports.filter(r => r.category === cat).length;
+                    const ratio = total > 0 ? Math.round((count / total) * 100) : 0;
+                    bars.innerHTML += `<div><div class="flex justify-between font-semibold text-slate-600 mb-0.5"><span>${cat}</span><span>${count} (${ratio}%)</span></div><div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden"><div class="bg-indigo-600 h-full rounded-full" style="width: ${ratio}%"></div></div></div>`;
+                });
+            }
+
+            // Datos dinámicos para las gráficas
+            const catCounts = cats.map(cat => reports.filter(r => r.category === cat).length);
+            const statusCounts = [
+                reports.filter(r => r.status === 'Pendiente').length,
+                reports.filter(r => r.status === 'En Proceso').length,
+                reports.filter(r => r.status === 'Resuelto').length
+            ];
+
+            // 1. Gráfica de Categorías (Doughnut)
+            const catCtx = document.getElementById('categoryChart');
+            if(catCtx) {
+                if(categoryChartInstance) categoryChartInstance.destroy();
+                categoryChartInstance = new Chart(catCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: cats,
+                        datasets: [{
+                            data: catCounts,
+                            backgroundColor: ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+                    }
+                });
+            }
+
+            // 2. Gráfica de Estados de Reportes (Bar)
+            const statusCtx = document.getElementById('statusChart');
+            if(statusCtx) {
+                if(statusChartInstance) statusChartInstance.destroy();
+                statusChartInstance = new Chart(statusCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Pendiente', 'En Proceso', 'Resuelto'],
+                        datasets: [{
+                            label: 'Reportes',
+                            data: statusCounts,
+                            backgroundColor: ['#f59e0b', '#3b82f6', '#10b981'],
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { precision: 0, font: { size: 10 } } },
+                            x: { ticks: { font: { size: 10 } } }
+                        }
+                    }
+                });
+            }
         }
 
         function renderApp() { renderHeaderAuth(); renderActiveTabContent(); }
