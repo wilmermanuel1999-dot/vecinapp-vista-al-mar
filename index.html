@@ -317,8 +317,12 @@
     <script>
         // CONFIGURACIÓN DE SUPABASE
         const SUPABASE_URL = 'https://pwqbirdbnekjhvazowlw.supabase.co';
-        const SUPABASE_ANON_KEY = 'Sb_publishable_CqRDZb8UyGOMtBUC7mGtFQ_fNkMoyH3';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
+                          'eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB3cWJpcmRibmVramh2YXpvd2x3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxMjM0MjMsImV4cCI6MjEwODY5OTQyM30.' +
+                          'AMaSk40v41QvbChscyRaKqFNCrBMHoaTlLsBjpGsbZg';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
 
         let reports = [];
         let comunicados = [];
