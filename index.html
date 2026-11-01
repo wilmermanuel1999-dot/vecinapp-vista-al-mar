@@ -312,7 +312,383 @@
     </div>
 
     <!-- JAVASCRIPT CON GRÁFICAS INTERACTIVAS Y COMPRESIÓN -->
+                <!-- JAVASCRIPT CON SUPABASE Y GRÁFICAS EN TIEMPO REAL -->
     <script>
+        // CONFIGURACIÓN DE SUPABASE
+        const SUPABASE_URL = 'https://pwqbirdbnekjhvazowlw.supabase.co';
+        const SUPABASE_ANON_KEY = 'Sb_publishable_CqRDZb8UyGOMtBUC7mGtFQ_fNkMoyH3';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let reports = [];
+        let comunicados = [];
+        let directorio = [];
+        let reservas = [];
+        let users = [];
+        let currentUser = null;
+        let activeTab = 'incidencias';
+        let capturedImageBase64 = '';
+        
+        let categoryChartInstance = null;
+        let statusChartInstance = null;
+
+        window.onload = async function() {
+            await fetchCloudData();
+            const session = localStorage.getItem('v_session');
+            if(session) { try { currentUser = JSON.parse(session); } catch(e){ currentUser = null; } }
+            renderApp();
+            setupRealtimeSync();
+        };
+
+        async function fetchCloudData() {
+            try {
+                const { data: rep } = await supabaseClient.from('reports').select('*').order('id', { ascending: false });
+                const { data: com } = await supabaseClient.from('comunicados').select('*').order('id', { ascending: false });
+                const { data: dir } = await supabaseClient.from('directorio').select('*').order('id', { ascending: false });
+                const { data: res } = await supabaseClient.from('reservas').select('*').order('id', { ascending: false });
+                const { data: usr } = await supabaseClient.from('profiles').select('*');
+
+                reports = rep || [];
+                comunicados = com || [];
+                directorio = dir || [];
+                reservas = res || [];
+                users = usr || [];
+            } catch (err) {
+                console.error('Error al conectar con Supabase:', err);
+                showToast('Error de conexión con la nube', 'info');
+            }
+        }
+
+        function setupRealtimeSync() {
+            supabaseClient
+              .channel('public-db-changes')
+              .on('postgres_changes', { event: '*', schema: 'public' }, async () => {
+                  await fetchCloudData();
+                  renderApp();
+              })
+              .subscribe();
+        }
+
+        // Compresión ultra ligera para evitar bloqueos en celulares
+        function handleImageCapture(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const MAX = 400; 
+                        let w = img.width, h = img.height;
+                        if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } }
+                        else { if (h > MAX) { w *= MAX / h; h = MAX; } }
+                        canvas.width = w; canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        capturedImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                        document.getElementById('imagePreviewElement').src = capturedImageBase64;
+                        document.getElementById('imagePreviewBox').classList.remove('hidden');
+                        document.getElementById('imageStatusText').textContent = 'Lista ✔';
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearImage() {
+            capturedImageBase64 = '';
+            document.getElementById('cameraInput').value = '';
+            document.getElementById('imagePreviewBox').classList.add('hidden');
+            document.getElementById('imageStatusText').textContent = 'Sin foto';
+        }
+
+        function switchTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 whitespace-nowrap text-slate-300 hover:bg-slate-800');
+            document.getElementById(`tabBtn-${tabId}`).className = 'tab-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 whitespace-nowrap bg-indigo-600 text-white shadow';
+            renderActiveTabContent();
+        }
+
+        function renderActiveTabContent() {
+            if(activeTab === 'incidencias') renderIncidencias();
+            else if(activeTab === 'comunicados') renderComunicados();
+            else if(activeTab === 'directorio') renderDirectorio();
+            else if(activeTab === 'reservas') renderReservas();
+            else if(activeTab === 'estadisticas') renderEstadisticas();
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); const f = document.querySelector(`#${id} form`); if(f) f.reset(); if(id === 'reportModal') clearImage(); }
+        function switchToRegister() { closeModal('loginModal'); openModal('registerModal'); }
+        function switchToLogin() { closeModal('registerModal'); openModal('loginModal'); }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
+            const password = document.getElementById('regPassword').value;
+            const role = document.getElementById('regRole').value;
+            
+            if(users.some(u => u.email === email)) { showToast('Correo ya registrado', 'info'); return; }
+            
+            const newUser = { name, email, password, role };
+            const { data, error } = await supabaseClient.from('profiles').insert([newUser]).select();
+            
+            if(!error && data) {
+                users.push(data[0]);
+                currentUser = { name, email, role };
+                localStorage.setItem('v_session', JSON.stringify(currentUser));
+                closeModal('registerModal'); 
+                renderApp(); 
+                showToast(`¡Bienvenido/a, ${name}!`);
+            } else {
+                showToast('Error al registrarse en la nube', 'info');
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+            
+            const found = users.find(u => u.email === email && u.password === password);
+            if(found) {
+                currentUser = { name: found.name, email: found.email, role: found.role };
+                localStorage.setItem('v_session', JSON.stringify(currentUser));
+                closeModal('loginModal'); 
+                renderApp(); 
+                showToast(`Hola, ${found.name}`);
+            } else { 
+                showToast('Datos incorrectos', 'info'); 
+            }
+        }
+
+        function logout() { 
+            currentUser = null; 
+            localStorage.removeItem('v_session'); 
+            renderApp(); 
+            showToast('Sesión cerrada', 'info'); 
+        }
+
+        function showToast(msg, type='success') {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = msg;
+            document.getElementById('toastIcon').className = type === 'info' ? 'fa-solid fa-circle-info text-blue-400' : 'fa-solid fa-circle-check text-emerald-400';
+            t.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 2500);
+        }
+
+        function renderHeaderAuth() {
+            const container = document.getElementById('headerAuthContainer');
+            const btnAddCom = document.getElementById('btnAddComunicado');
+            if(currentUser) {
+                const isAdmin = currentUser.role === 'Líder Comunitario';
+                if(isAdmin && btnAddCom) btnAddCom.classList.remove('hidden'); else if(btnAddCom) btnAddCom.classList.add('hidden');
+                container.innerHTML = `
+                    <div class="flex items-center space-x-1.5 bg-slate-800 px-2.5 py-1 rounded-xl border border-slate-700 text-xs">
+                        <div class="w-6 h-6 rounded-full bg-indigo-500 text-white font-bold flex items-center justify-center">${currentUser.name.charAt(0)}</div>
+                        <span class="font-bold text-white max-w-[80px] truncate">${escapeHtml(currentUser.name)}</span>
+                    </div>
+                    <button onclick="logout()" class="w-8 h-8 bg-slate-800 text-slate-300 hover:text-rose-400 rounded-xl flex items-center justify-center border border-slate-700"><i class="fa-solid fa-power-off text-xs"></i></button>
+                `;
+            } else {
+                if(btnAddCom) btnAddCom.classList.add('hidden');
+                container.innerHTML = `
+                    <button onclick="openModal('loginModal')" class="text-slate-300 hover:text-white px-2.5 py-1 text-xs font-medium">Entrar</button>
+                    <button onclick="openModal('registerModal')" class="bg-indigo-600 text-white px-3 py-1 rounded-xl text-xs font-bold">Registro</button>
+                `;
+            }
+        }
+
+        // INCIDENCIAS Y COMENTARIOS
+        async function handleReportSubmit(e) {
+            e.preventDefault();
+            if(!currentUser) { openModal('loginModal'); showToast('Inicia sesión para publicar', 'info'); return; }
+            
+            const newR = {
+                title: document.getElementById('reportTitle').value.trim(),
+                category: document.getElementById('reportCategory').value,
+                sector: document.getElementById('reportSector').value,
+                description: document.getElementById('reportDescription').value.trim(),
+                image: capturedImageBase64 || 'https://images.unsplash.com/photo-1584467735811-62848c463426?auto=format&fit=crop&w=500&q=80',
+                date: new Date().toISOString().split('T')[0],
+                status: 'Pendiente',
+                reporter: currentUser.name,
+                supports: 1,
+                comments: []
+            };
+
+            const { data, error } = await supabaseClient.from('reports').insert([newR]).select();
+            if(!error && data) {
+                reports.unshift(data[0]); 
+                closeModal('reportModal'); 
+                renderIncidencias(); 
+                showToast('¡Publicado en la nube!');
+            } else {
+                showToast('Error al publicar', 'info');
+            }
+        }
+
+        async function supportReport(id) {
+            const r = reports.find(item => item.id === id);
+            if(r) {
+                r.supports++;
+                const { error } = await supabaseClient.from('reports').update({ supports: r.supports }).eq('id', id);
+                if(!error) {
+                    renderIncidencias(); 
+                    showToast('¡Apoyado!');
+                }
+            }
+        }
+
+        async function addComment(id) {
+            if(!currentUser) { openModal('loginModal'); showToast('Inicia sesión para comentar', 'info'); return; }
+            const input = document.getElementById(`commentInput_${id}`);
+            const text = input.value.trim();
+            if(!text) return;
+            
+            const r = reports.find(item => item.id === id);
+            if(r) {
+                if(!r.comments) r.comments = [];
+                r.comments.push({ author: currentUser.name, text: text, date: 'Hoy' });
+                
+                const { error } = await supabaseClient.from('reports').update({ comments: r.comments }).eq('id', id);
+                if(!error) {
+                    input.value = ''; 
+                    renderIncidencias(); 
+                    showToast('Comentario añadido');
+                }
+            }
+        }
+
+        async function updateReportStatus(id, status) {
+            if(!currentUser || currentUser.role !== 'Líder Comunitario') return;
+            const r = reports.find(item => item.id === id);
+            if(r) {
+                const { error } = await supabaseClient.from('reports').update({ status: status }).eq('id', id);
+                if(!error) {
+                    r.status = status;
+                    renderIncidencias(); 
+                    showToast(`Estado: ${status}`);
+                }
+            }
+        }
+
+        async function deleteReport(id) {
+            if(!currentUser || currentUser.role !== 'Líder Comunitario') return;
+            const { error } = await supabaseClient.from('reports').delete().eq('id', id);
+            if(!error) {
+                reports = reports.filter(item => item.id !== id);
+                renderIncidencias(); 
+                showToast('Eliminado');
+            }
+        }
+
+        function renderIncidencias() {
+            const grid = document.getElementById('reportsGrid');
+            const empty = document.getElementById('reportsEmpty');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const statusVal = document.getElementById('statusFilter').value;
+            const catVal = document.getElementById('categoryFilter').value;
+
+            const filtered = reports.filter(r => {
+                const matchS = r.title.toLowerCase().includes(search) || r.sector.toLowerCase().includes(search) || r.reporter.toLowerCase().includes(search);
+                const matchStatus = statusVal === 'Todos' || r.status === statusVal;
+                const matchCat = catVal === 'Todas' || r.category === catVal;
+                return matchS && matchStatus && matchCat;
+            });
+
+            grid.innerHTML = '';
+            if(filtered.length === 0) { empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+
+            const isAdmin = currentUser && currentUser.role === 'Líder Comunitario';
+
+            filtered.forEach(r => {
+                let badge = 'bg-amber-100 text-amber-800';
+                if(r.status === 'En Proceso') badge = 'bg-blue-100 text-blue-800';
+                if(r.status === 'Resuelto') badge = 'bg-emerald-100 text-emerald-800';
+
+                let commentsHtml = '';
+                if(r.comments && r.comments.length > 0) {
+                    r.comments.forEach(c => {
+                        commentsHtml += `<div class="bg-slate-50 p-2 rounded-xl text-xs mt-1.5"><strong class="text-indigo-600">${escapeHtml(c.author)}:</strong> ${escapeHtml(c.text)}</div>`;
+                    });
+                }
+
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs';
+                card.innerHTML = `
+                    <div class="p-3.5 pb-2.5 flex items-center justify-between">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs">${r.reporter.charAt(0)}</div>
+                            <div>
+                                <h4 class="font-bold text-slate-900">${escapeHtml(r.reporter)}</h4>
+                                <p class="text-[10px] text-slate-400"><i class="fa-solid fa-location-dot text-indigo-500 mr-0.5"></i>${escapeHtml(r.sector)} • ${r.date}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1.5">
+                            <span class="px-2.5 py-0.5 rounded-full font-semibold ${badge}">${r.status}</span>
+                            <span class="px-2.5 py-0.5 rounded-full font-semibold bg-slate-100 text-slate-600">${r.category}</span>
+                        </div>
+                    </div>
+                    <div class="px-3.5 pb-2">
+                        <h3 class="font-bold text-slate-800 mb-0.5">${escapeHtml(r.title)}</h3>
+                        <p class="text-slate-600">${escapeHtml(r.description)}</p>
+                    </div>
+                    <div class="w-full bg-slate-900 h-56 overflow-hidden">
+                        <img src="${r.image}" alt="Evidencia" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Interacciones y Comentarios -->
+                    <div class="p-3.5 space-y-3 bg-slate-50/50">
+                        <div class="flex items-center justify-between border-b pb-2.5">
+                            <button onclick="supportReport(${r.id})" class="flex items-center space-x-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-xl font-bold transition">
+                                <i class="fa-solid fa-thumbs-up"></i><span>Apoyar (${r.supports})</span>
+                            </button>
+                            ${isAdmin ? `
+                                <div class="flex items-center space-x-1.5">
+                                    <select onchange="updateReportStatus(${r.id}, this.value)" class="border rounded-xl px-2 py-1 text-[11px]">
+                                        <option value="Pendiente" ${r.status==='Pendiente'?'selected':''}>Pendiente</option>
+                                        <option value="En Proceso" ${r.status==='En Proceso'?'selected':''}>En Proceso</option>
+                                        <option value="Resuelto" ${r.status==='Resuelto'?'selected':''}>Resuelto</option>
+                                    </select>
+                                    <button onclick="deleteReport(${r.id})" class="text-rose-600 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <!-- Lista de Comentarios -->
+                        <div class="space-y-1">${commentsHtml}</div>
+                        <!-- Input para comentar -->
+                        <div class="flex gap-1.5 pt-1">
+                            <input type="text" id="commentInput_${r.id}" placeholder="Escribe un comentario..." class="flex-grow px-3 py-1.5 bg-white border rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            <button onclick="addComment(${r.id})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-xl font-bold"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // COMUNICADOS
+        async function handleComunicadoSubmit(e) {
+            e.preventDefault();
+            const newC = {
+                title: document.getElementById('comTitulo').value,
+                category: document.getElementById('comCat').value,
+                content: document.getElementById('comContenido').value,
+                date: new Date().toISOString().split('T')[0]
+            };
+            const { data, error } = await supabaseClient.from('comunicados').insert([newC]).select();
+            if(!error && data) {
+                comunicados.unshift(data[0]);
+                closeModal('comunicadoModal'); 
+                renderComunicados(); 
+                showToast('Aviso publicado');
+            }
+        }
+        function rend
+    
         let reports = [];
         let comunicados = [];
         let directorio = [];
