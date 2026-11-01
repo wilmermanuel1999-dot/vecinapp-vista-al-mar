@@ -12,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js para Gráficas Interactivas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Supabase JS SDK CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
@@ -311,8 +313,7 @@
         <span id="toastMessage">Éxito</span>
     </div>
 
-    <!-- JAVASCRIPT CON GRÁFICAS INTERACTIVAS Y COMPRESIÓN -->
-                <!-- JAVASCRIPT CON SUPABASE Y GRÁFICAS EN TIEMPO REAL -->
+    <!-- JAVASCRIPT CON SUPABASE Y GRÁFICAS EN TIEMPO REAL -->
     <script>
         // CONFIGURACIÓN DE SUPABASE
         const SUPABASE_URL = 'https://pwqbirdbnekjhvazowlw.supabase.co';
@@ -441,7 +442,8 @@
                 localStorage.setItem('v_session', JSON.stringify(currentUser));
                 closeModal('registerModal'); 
                 renderApp(); 
-                showToast(`¡Bienvenido/a, ${name}!`);
+                // CHECK-IN NOTIFICACIÓN DB
+                showToast('✔ ¡Registrado y enviado a la base de datos!');
             } else {
                 showToast('Error al registrarse en la nube', 'info');
             }
@@ -476,7 +478,7 @@
             document.getElementById('toastMessage').textContent = msg;
             document.getElementById('toastIcon').className = type === 'info' ? 'fa-solid fa-circle-info text-blue-400' : 'fa-solid fa-circle-check text-emerald-400';
             t.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 2500);
+            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000);
         }
 
         function renderHeaderAuth() {
@@ -524,7 +526,8 @@
                 reports.unshift(data[0]); 
                 closeModal('reportModal'); 
                 renderIncidencias(); 
-                showToast('¡Publicado en la nube!');
+                // CHECK-IN NOTIFICACIÓN DB
+                showToast('✔ ¡Reporte enviado a la base de datos!');
             } else {
                 showToast('Error al publicar', 'info');
             }
@@ -537,7 +540,7 @@
                 const { error } = await supabaseClient.from('reports').update({ supports: r.supports }).eq('id', id);
                 if(!error) {
                     renderIncidencias(); 
-                    showToast('¡Apoyado!');
+                    showToast('✔ ¡Apoyo guardado en la base de datos!');
                 }
             }
         }
@@ -557,7 +560,7 @@
                 if(!error) {
                     input.value = ''; 
                     renderIncidencias(); 
-                    showToast('Comentario añadido');
+                    showToast('✔ ¡Comentario guardado en la base de datos!');
                 }
             }
         }
@@ -570,7 +573,7 @@
                 if(!error) {
                     r.status = status;
                     renderIncidencias(); 
-                    showToast(`Estado: ${status}`);
+                    showToast(`✔ ¡Estado actualizado (${status}) en la base de datos!`);
                 }
             }
         }
@@ -581,7 +584,7 @@
             if(!error) {
                 reports = reports.filter(item => item.id !== id);
                 renderIncidencias(); 
-                showToast('Eliminado');
+                showToast('✔ ¡Eliminado de la base de datos!');
             }
         }
 
@@ -684,308 +687,9 @@
                 comunicados.unshift(data[0]);
                 closeModal('comunicadoModal'); 
                 renderComunicados(); 
-                showToast('Aviso publicado');
+                // CHECK-IN NOTIFICACIÓN DB
+                showToast('✔ ¡Aviso enviado a la base de datos!');
             }
-        }
-        function rend
-    
-        let reports = [];
-        let comunicados = [];
-        let directorio = [];
-        let reservas = [];
-        let users = [];
-        let currentUser = null;
-        let activeTab = 'incidencias';
-        let capturedImageBase64 = '';
-        
-        let categoryChartInstance = null;
-        let statusChartInstance = null;
-
-        const defaultReports = [
-            { id: 1, title: 'Falla en luminaria principal', category: 'Alumbrado', sector: 'Parte Alta', description: 'El poste frente al callejón lleva tres días sin encender.', date: '2026-10-26', status: 'Pendiente', reporter: 'María Pérez', supports: 5, image: 'https://images.unsplash.com/photo-1541888946425-d0fbb18f86c8?auto=format&fit=crop&w=500&q=80', comments: [{author: 'Carlos', text: 'Sí, por favor urgente.'}] }
-        ];
-
-        window.onload = function() {
-            reports = loadStorage('v_reports', defaultReports);
-            comunicados = loadStorage('v_comunicados', []);
-            directorio = loadStorage('v_directorio', []);
-            reservas = loadStorage('v_reservas', []);
-            users = loadStorage('v_users', [{ name: 'Admin', email: 'admin@vecinapp.com', password: '123', role: 'Líder Comunitario' }]);
-
-            const session = localStorage.getItem('v_session');
-            if(session) { try { currentUser = JSON.parse(session); } catch(e){ currentUser = null; } }
-            renderApp();
-        };
-
-        function loadStorage(key, fallback) {
-            const data = localStorage.getItem(key);
-            return data ? JSON.parse(data) : fallback;
-        }
-
-        function saveAll() {
-            try {
-                localStorage.setItem('v_reports', JSON.stringify(reports));
-                localStorage.setItem('v_comunicados', JSON.stringify(comunicados));
-                localStorage.setItem('v_directorio', JSON.stringify(directorio));
-                localStorage.setItem('v_reservas', JSON.stringify(reservas));
-                localStorage.setItem('v_users', JSON.stringify(users));
-                if(currentUser) localStorage.setItem('v_session', JSON.stringify(currentUser));
-                else localStorage.removeItem('v_session');
-            } catch (err) {
-                showToast('Memoria llena. Usa una foto más ligera.', 'info');
-            }
-        }
-
-        // Compresión ultra ligera para evitar bloqueos en celulares
-        function handleImageCapture(e) {
-            const file = e.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const MAX = 400; // Ancho/Alto máximo optimizado
-                        let w = img.width, h = img.height;
-                        if (w > h) { if (w > MAX) { h *= MAX / w; w = MAX; } }
-                        else { if (h > MAX) { w *= MAX / h; h = MAX; } }
-                        canvas.width = w; canvas.height = h;
-                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                        capturedImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                        document.getElementById('imagePreviewElement').src = capturedImageBase64;
-                        document.getElementById('imagePreviewBox').classList.remove('hidden');
-                        document.getElementById('imageStatusText').textContent = 'Lista ✔';
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function clearImage() {
-            capturedImageBase64 = '';
-            document.getElementById('cameraInput').value = '';
-            document.getElementById('imagePreviewBox').classList.add('hidden');
-            document.getElementById('imageStatusText').textContent = 'Sin foto';
-        }
-
-        function switchTab(tabId) {
-            activeTab = tabId;
-            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`view-${tabId}`).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.className = 'tab-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 whitespace-nowrap text-slate-300 hover:bg-slate-800');
-            document.getElementById(`tabBtn-${tabId}`).className = 'tab-btn px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 whitespace-nowrap bg-indigo-600 text-white shadow';
-            renderActiveTabContent();
-        }
-
-        function renderActiveTabContent() {
-            if(activeTab === 'incidencias') renderIncidencias();
-            else if(activeTab === 'comunicados') renderComunicados();
-            else if(activeTab === 'directorio') renderDirectorio();
-            else if(activeTab === 'reservas') renderReservas();
-            else if(activeTab === 'estadisticas') renderEstadisticas();
-        }
-
-        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); const f = document.querySelector(`#${id} form`); if(f) f.reset(); if(id === 'reportModal') clearImage(); }
-        function switchToRegister() { closeModal('loginModal'); openModal('registerModal'); }
-        function switchToLogin() { closeModal('registerModal'); openModal('loginModal'); }
-
-        function handleRegister(e) {
-            e.preventDefault();
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim().toLowerCase();
-            const password = document.getElementById('regPassword').value;
-            const role = document.getElementById('regRole').value;
-            if(users.some(u => u.email === email)) { showToast('Correo ya registrado', 'info'); return; }
-            users.push({ name, email, password, role });
-            currentUser = { name, email, role };
-            saveAll(); closeModal('registerModal'); renderApp(); showToast(`¡Bienvenido/a, ${name}!`);
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-            const password = document.getElementById('loginPassword').value;
-            const found = users.find(u => u.email === email && u.password === password);
-            if(found) {
-                currentUser = { name: found.name, email: found.email, role: found.role };
-                saveAll(); closeModal('loginModal'); renderApp(); showToast(`Hola, ${found.name}`);
-            } else { showToast('Datos incorrectos', 'info'); }
-        }
-
-        function logout() { currentUser = null; saveAll(); renderApp(); showToast('Sesión cerrada', 'info'); }
-
-        function showToast(msg, type='success') {
-            const t = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = msg;
-            document.getElementById('toastIcon').className = type === 'info' ? 'fa-solid fa-circle-info text-blue-400' : 'fa-solid fa-circle-check text-emerald-400';
-            t.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 2500);
-        }
-
-        function renderHeaderAuth() {
-            const container = document.getElementById('headerAuthContainer');
-            const btnAddCom = document.getElementById('btnAddComunicado');
-            if(currentUser) {
-                const isAdmin = currentUser.role === 'Líder Comunitario';
-                if(isAdmin && btnAddCom) btnAddCom.classList.remove('hidden'); else if(btnAddCom) btnAddCom.classList.add('hidden');
-                container.innerHTML = `
-                    <div class="flex items-center space-x-1.5 bg-slate-800 px-2.5 py-1 rounded-xl border border-slate-700 text-xs">
-                        <div class="w-6 h-6 rounded-full bg-indigo-500 text-white font-bold flex items-center justify-center">${currentUser.name.charAt(0)}</div>
-                        <span class="font-bold text-white max-w-[80px] truncate">${escapeHtml(currentUser.name)}</span>
-                    </div>
-                    <button onclick="logout()" class="w-8 h-8 bg-slate-800 text-slate-300 hover:text-rose-400 rounded-xl flex items-center justify-center border border-slate-700"><i class="fa-solid fa-power-off text-xs"></i></button>
-                `;
-            } else {
-                if(btnAddCom) btnAddCom.classList.add('hidden');
-                container.innerHTML = `
-                    <button onclick="openModal('loginModal')" class="text-slate-300 hover:text-white px-2.5 py-1 text-xs font-medium">Entrar</button>
-                    <button onclick="openModal('registerModal')" class="bg-indigo-600 text-white px-3 py-1 rounded-xl text-xs font-bold">Registro</button>
-                `;
-            }
-        }
-
-        // INCIDENCIAS Y COMENTARIOS
-        function handleReportSubmit(e) {
-            e.preventDefault();
-            if(!currentUser) { openModal('loginModal'); showToast('Inicia sesión para publicar', 'info'); return; }
-            const newR = {
-                id: Date.now(),
-                title: document.getElementById('reportTitle').value.trim(),
-                category: document.getElementById('reportCategory').value,
-                sector: document.getElementById('reportSector').value,
-                description: document.getElementById('reportDescription').value.trim(),
-                image: capturedImageBase64 || 'https://images.unsplash.com/photo-1584467735811-62848c463426?auto=format&fit=crop&w=500&q=80',
-                date: new Date().toISOString().split('T')[0],
-                status: 'Pendiente',
-                reporter: currentUser.name,
-                supports: 1,
-                comments: []
-            };
-            reports.unshift(newR); saveAll(); closeModal('reportModal'); renderIncidencias(); showToast('¡Publicado con éxito!');
-        }
-
-        function supportReport(id) {
-            const r = reports.find(item => item.id === id);
-            if(r) { r.supports++; saveAll(); renderIncidencias(); showToast('¡Apoyado!'); }
-        }
-
-        function addComment(id) {
-            if(!currentUser) { openModal('loginModal'); showToast('Inicia sesión para comentar', 'info'); return; }
-            const input = document.getElementById(`commentInput_${id}`);
-            const text = input.value.trim();
-            if(!text) return;
-            const r = reports.find(item => item.id === id);
-            if(r) {
-                if(!r.comments) r.comments = [];
-                r.comments.push({ author: currentUser.name, text: text, date: 'Hoy' });
-                input.value = ''; saveAll(); renderIncidencias(); showToast('Comentario añadido');
-            }
-        }
-
-        function updateReportStatus(id, status) {
-            if(!currentUser || currentUser.role !== 'Líder Comunitario') return;
-            const r = reports.find(item => item.id === id);
-            if(r) { r.status = status; saveAll(); renderIncidencias(); showToast(`Estado: ${status}`); }
-        }
-
-        function deleteReport(id) {
-            if(!currentUser || currentUser.role !== 'Líder Comunitario') return;
-            reports = reports.filter(item => item.id !== id);
-            saveAll(); renderIncidencias(); showToast('Eliminado');
-        }
-
-        function renderIncidencias() {
-            const grid = document.getElementById('reportsGrid');
-            const empty = document.getElementById('reportsEmpty');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            const statusVal = document.getElementById('statusFilter').value;
-            const catVal = document.getElementById('categoryFilter').value;
-
-            const filtered = reports.filter(r => {
-                const matchS = r.title.toLowerCase().includes(search) || r.sector.toLowerCase().includes(search) || r.reporter.toLowerCase().includes(search);
-                const matchStatus = statusVal === 'Todos' || r.status === statusVal;
-                const matchCat = catVal === 'Todas' || r.category === catVal;
-                return matchS && matchStatus && matchCat;
-            });
-
-            grid.innerHTML = '';
-            if(filtered.length === 0) { empty.classList.remove('hidden'); return; }
-            empty.classList.add('hidden');
-
-            const isAdmin = currentUser && currentUser.role === 'Líder Comunitario';
-
-            filtered.forEach(r => {
-                let badge = 'bg-amber-100 text-amber-800';
-                if(r.status === 'En Proceso') badge = 'bg-blue-100 text-blue-800';
-                if(r.status === 'Resuelto') badge = 'bg-emerald-100 text-emerald-800';
-
-                let commentsHtml = '';
-                if(r.comments && r.comments.length > 0) {
-                    r.comments.forEach(c => {
-                        commentsHtml += `<div class="bg-slate-50 p-2 rounded-xl text-xs mt-1.5"><strong class="text-indigo-600">${escapeHtml(c.author)}:</strong> ${escapeHtml(c.text)}</div>`;
-                    });
-                }
-
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden text-xs';
-                card.innerHTML = `
-                    <div class="p-3.5 pb-2.5 flex items-center justify-between">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs">${r.reporter.charAt(0)}</div>
-                            <div>
-                                <h4 class="font-bold text-slate-900">${escapeHtml(r.reporter)}</h4>
-                                <p class="text-[10px] text-slate-400"><i class="fa-solid fa-location-dot text-indigo-500 mr-0.5"></i>${escapeHtml(r.sector)} • ${r.date}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-1.5">
-                            <span class="px-2.5 py-0.5 rounded-full font-semibold ${badge}">${r.status}</span>
-                            <span class="px-2.5 py-0.5 rounded-full font-semibold bg-slate-100 text-slate-600">${r.category}</span>
-                        </div>
-                    </div>
-                    <div class="px-3.5 pb-2">
-                        <h3 class="font-bold text-slate-800 mb-0.5">${escapeHtml(r.title)}</h3>
-                        <p class="text-slate-600">${escapeHtml(r.description)}</p>
-                    </div>
-                    <div class="w-full bg-slate-900 h-56 overflow-hidden">
-                        <img src="${r.image}" alt="Evidencia" class="w-full h-full object-cover">
-                    </div>
-                    <!-- Interacciones y Comentarios -->
-                    <div class="p-3.5 space-y-3 bg-slate-50/50">
-                        <div class="flex items-center justify-between border-b pb-2.5">
-                            <button onclick="supportReport(${r.id})" class="flex items-center space-x-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-xl font-bold transition">
-                                <i class="fa-solid fa-thumbs-up"></i><span>Apoyar (${r.supports})</span>
-                            </button>
-                            ${isAdmin ? `
-                                <div class="flex items-center space-x-1.5">
-                                    <select onchange="updateReportStatus(${r.id}, this.value)" class="border rounded-xl px-2 py-1 text-[11px]">
-                                        <option value="Pendiente" ${r.status==='Pendiente'?'selected':''}>Pendiente</option>
-                                        <option value="En Proceso" ${r.status==='En Proceso'?'selected':''}>En Proceso</option>
-                                        <option value="Resuelto" ${r.status==='Resuelto'?'selected':''}>Resuelto</option>
-                                    </select>
-                                    <button onclick="deleteReport(${r.id})" class="text-rose-600 p-1.5"><i class="fa-solid fa-trash"></i></button>
-                                </div>
-                            ` : ''}
-                        </div>
-                        <!-- Lista de Comentarios -->
-                        <div class="space-y-1">${commentsHtml}</div>
-                        <!-- Input para comentar -->
-                        <div class="flex gap-1.5 pt-1">
-                            <input type="text" id="commentInput_${r.id}" placeholder="Escribe un comentario..." class="flex-grow px-3 py-1.5 bg-white border rounded-xl focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                            <button onclick="addComment(${r.id})" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-xl font-bold"><i class="fa-solid fa-paper-plane"></i></button>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        // COMUNICADOS
-        function handleComunicadoSubmit(e) {
-            e.preventDefault();
-            comunicados.unshift({ id: Date.now(), title: document.getElementById('comTitulo').value, category: document.getElementById('comCat').value, content: document.getElementById('comContenido').value, date: new Date().toISOString().split('T')[0] });
-            saveAll(); closeModal('comunicadoModal'); renderComunicados(); showToast('Aviso publicado');
         }
         function renderComunicados() {
             const grid = document.getElementById('comunicadosGrid'); grid.innerHTML = '';
@@ -995,10 +699,22 @@
         }
 
         // DIRECTORIO
-        function handleNegocioSubmit(e) {
+        async function handleNegocioSubmit(e) {
             e.preventDefault();
-            directorio.unshift({ id: Date.now(), name: document.getElementById('negNombre').value, category: document.getElementById('negCategoria').value, contact: document.getElementById('negContacto').value, desc: document.getElementById('negDesc').value });
-            saveAll(); closeModal('negocioModal'); renderDirectorio(); showToast('Negocio registrado');
+            const newN = {
+                name: document.getElementById('negNombre').value,
+                category: document.getElementById('negCategoria').value,
+                contact: document.getElementById('negContacto').value,
+                "desc": document.getElementById('negDesc').value
+            };
+            const { data, error } = await supabaseClient.from('directorio').insert([newN]).select();
+            if(!error && data) {
+                directorio.unshift(data[0]);
+                closeModal('negocioModal'); 
+                renderDirectorio(); 
+                // CHECK-IN NOTIFICACIÓN DB
+                showToast('✔ ¡Negocio guardado en la base de datos!');
+            }
         }
         function renderDirectorio() {
             const grid = document.getElementById('directorioGrid'); grid.innerHTML = '';
@@ -1008,11 +724,24 @@
         }
 
         // RESERVAS
-        function handleReservaSubmit(e) {
+        async function handleReservaSubmit(e) {
             e.preventDefault();
             if(!currentUser) { openModal('loginModal'); showToast('Inicia sesión', 'info'); return; }
-            reservas.unshift({ id: Date.now(), espacio: document.getElementById('resEspacio').value, fecha: document.getElementById('resFecha').value, horario: document.getElementById('resHorario').value, motivo: document.getElementById('resMotivo').value, user: currentUser.name });
-            saveAll(); closeModal('reservaModal'); renderReservas(); showToast('Reservado');
+            const newRes = {
+                espacio: document.getElementById('resEspacio').value,
+                fecha: document.getElementById('resFecha').value,
+                horario: document.getElementById('resHorario').value,
+                motivo: document.getElementById('resMotivo').value,
+                user_name: currentUser.name
+            };
+            const { data, error } = await supabaseClient.from('reservas').insert([newRes]).select();
+            if(!error && data) {
+                reservas.unshift(data[0]);
+                closeModal('reservaModal'); 
+                renderReservas(); 
+                // CHECK-IN NOTIFICACIÓN DB
+                showToast('✔ ¡Espacio reservado en la base de datos!');
+            }
         }
         function renderReservas() {
             const grid = document.getElementById('reservasGrid'); grid.innerHTML = '';
@@ -1042,7 +771,6 @@
                 });
             }
 
-            // Datos dinámicos para las gráficas
             const catCounts = cats.map(cat => reports.filter(r => r.category === cat).length);
             const statusCounts = [
                 reports.filter(r => r.status === 'Pendiente').length,
@@ -1050,7 +778,6 @@
                 reports.filter(r => r.status === 'Resuelto').length
             ];
 
-            // 1. Gráfica de Categorías (Doughnut)
             const catCtx = document.getElementById('categoryChart');
             if(catCtx) {
                 if(categoryChartInstance) categoryChartInstance.destroy();
@@ -1072,7 +799,6 @@
                 });
             }
 
-            // 2. Gráfica de Estados de Reportes (Bar)
             const statusCtx = document.getElementById('statusChart');
             if(statusCtx) {
                 if(statusChartInstance) statusChartInstance.destroy();
